@@ -1,31 +1,17 @@
 [bits 16]
 org 0x7c00
+
+;Loader address
+LOADER_SEG equ 0x9000
+LOADER_OFFSET equ 0x100
+
+
 global boot
 boot:
     jmp start
     nop
 
-    BS_OEMName  DB '---xx---'   ; OEM String, 必须 8 个字节
-
-    BPB_BytsPerSec  DW 512      ; 每扇区字节数
-    BPB_SecPerClus  DB 1        ; 每簇多少扇区
-    BPB_RsvdSecCnt  DW 1        ; Boot 记录占用多少扇区
-    BPB_NumFATs DB 2            ; 共有多少 FAT 表
-    BPB_RootEntCnt  DW 224      ; 根目录文件数最大值
-    BPB_TotSec16    DW 2880     ; 逻辑扇区总数
-    BPB_Media   DB 0xF0         ; 媒体描述符
-    BPB_FATSz16 DW 9            ; 每FAT扇区数
-    BPB_SecPerTrk   DW 18       ; 每磁道扇区数
-    BPB_NumHeads    DW 2        ; 磁头数(面数)
-    BPB_HiddSec DD 0            ; 隐藏扇区数
-    BPB_TotSec32    DD 0        ; 如果 wTotalSectorCount 是 0 由这个值记录扇区数
-
-    BS_DrvNum   DB 0            ; 中断 13 的驱动器号
-    BS_Reserved1    DB 0        ; 未使用
-    BS_BootSig  DB 29h          ; 扩展引导标记 (29h)
-    BS_VolID    DD 0            ; 卷序列号
-    BS_VolLab   DB 'FlyanxOS'   ; 卷标, 必须 11 个字节
-    BS_FileSysType  DB 'FAT12   '   ; 文件系统类型, 必须 8个字节
+    %include "fat12hdr.inc"
 
 StackBase equ 0x7c00
 
@@ -35,26 +21,167 @@ start:
     mov ss, ax
     mov sp, StackBase
 
+    mov bp, BootMessage
+    call DispStr
+
+    ;reset floppyDisk
+    xor ah, ah
+    xor dl, dl
+    int 0x13
+
+    ;search for loader.bin
+
+    mov word[wSector], SectorNoOfRootDirectory
+
+search_file_in_root_dir_begin:
+
+    cmp word[wRootDirSizeLoop], 0
+
+    jz no_file ; no file found
+
+    dec word [wRootDirSizeLoop]
+
+    mov si, [wSector]
+    ;mov cl, 1; fix me
+
+    mov ax, LOADER_SEG
+    mov es, ax
+    mov bx,LOADER_OFFSET
+
+    call readSect
+
+    mov si, loader_filename; ds:si
+    mov di, LOADER_OFFSET; es:di
+
+    cld
+
+    mov dx, 16; every segment has 16 dirtory elements
+
+search_for_file:
+    cmp dx, 0
+    jz next_sector_in_root_dir ;no such file, load next segment
+    dec dx
+    ;compair file name
+
+    mov cx, 11
+
+cmp_filename:
+    cmp cx, 0
+    jz filename_found; found the file
+
+    dec cx
+
+    lodsb ;load string byte ds:si->al, si++
+    cmp al, byte[es: di]; cmp char
+
+    je GO_ON; char same, prepare for next
+    jmp different
+
+
+GO_ON:
+    inc di
+    jmp cmp_filename
+
+different:
+    and di, 0xfff0 ;reset di which is changed by inc
+
+    add di, 32 ;point di to next dictory item
+
+    mov si, loader_filename
+    jmp search_for_file; search next dictory item
+
+next_sector_in_root_dir:
+    add word[wSector], 1
+    jmp search_file_in_root_dir_begin
+
+
+    
+filename_found:
+    mov bp, FoundMessage
+    call DispStr
+    jmp $
+
+no_file:
+    mov bp, NoFileMessage
+    call DispStr
+    jmp $
+
+wRootDirSizeLoop dw RootDirSectors
+wSector dw 0
+
+DispStr:
     ; call bios to show string
+    push ax
+    push bx
+    push cx
+    push dx
+
     mov al, 1
     mov bl, 0x7 ;black white
     mov cx, 13 ;string length
-    xor dl, dl
-    xor dh, dh
+    xor dx, dx
 
     mov ax, ds
-    mov es, ax
-
-    mov bp, BootMessage
+    mov es, ax   
     
     xor ax, ax
     mov ah, 0x13
     int 0x10
 
+    pop dx
+    pop cx
+    pop bx
+    pop ax
 
-BootMessage: db "Booting......"
+    ret
 
-    jmp $
+;si: logic index
+readSect:
+    push ax
+    push cx
+    push dx
+    push bx
+
+    mov ax, si
+    xor dx, dx
+    mov bx, 18
+    div bx  ; ax % bx = dx ax/bx = ax
+    inc dx
+    mov cl, dl
+
+    mov dl, al ; save quotient
+
+    and al, 1
+    mov dh, al
+
+    mov al, dl; recover quotient
+    shr al, 1
+
+    mov ch, al
+    xor dl, dl; device number
+    pop bx
+rp_read:
+
+    mov ah, 2
+    mov al, 1
+    ;load data to es:bx
+    int 0x13
+; when int 0x13 failed, carry flag will be set as 1
+;if failed, read again
+    jc rp_read 
+
+    ;reverse to push
+    pop dx
+    pop cx
+    
+    pop ax
+
+    ret
+
+loader_filename db "LOADER  BIN", 0
+BootMessage:    db "Booting......"
+FoundMessage:   db "found     it!"
+NoFileMessage:  db "no loader    "
 
 times 510 - ($-$$) db 0
 
