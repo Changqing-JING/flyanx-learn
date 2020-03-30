@@ -117,6 +117,7 @@ DispStr:
     push dx
 
     mov al, 1
+    xor bh, bh
     mov bl, 0x7 ;black white
     mov cx, 13 ;string length
     xor dx, dx
