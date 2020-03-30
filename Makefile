@@ -1,15 +1,18 @@
-all: flyanx.img
+all: flyanx.img loader.bin
 
 boot.bin: ./src/boot/boot.asm
-	@nasm -o ./target/$@ $<
+	@nasm -i./src/boot/include/ -o ./target/$@ $<
 
 boot.o: ./src/boot/boot.asm
 	nasm -f elf -o ./target/$@ $<
 
+loader.bin: ./src/boot/loader.asm
+	@nasm -o ./target/$@ $<
+
 flyanx.img: boot.bin
 	@cat ./target/$<  > ./target/$@
 
-createFloppyDisk: boot.bin
+createFloppyDisk: boot.bin loader.bin
 	@dd if=/dev/zero of=./target/0.bin bs=1M count=1
 	@cat ./target/$< ./target/0.bin > ./target/flyanx.img
 
@@ -19,14 +22,17 @@ createFloppyDisk2:
 mountImg: ./target/flyanx.img
 	@sudo mount -t msdos -o loop $< /media/floppyDisk/
 
-umountImg:
+unmountImg:
 	@sudo umount /media/floppyDisk/
 
 clean:
 	@rm -rf ./target/*
 
-run: flyanx.img
-	@qemu-system-i386 -boot a -fda ./target/flyanx.img
+run: ./target/flyanx.img
+	make mountImg
+	sudo cp -i ./target/loader.bin /media/floppyDisk/loader.bin
+	make unmountImg
+	@qemu-system-i386 -boot a -fda $<
 
 runBochs:
 	@bochs
@@ -39,4 +45,4 @@ deasm: ./target/boot.bin
 
 remake:
 	@make clean
-	@make all
+	@make createFloppyDisk
