@@ -42,7 +42,7 @@ search_file_in_root_dir_begin:
     dec word [wRootDirSizeLoop]
 
     mov si, [wSector]
-    ;mov cl, 1; fix me
+    mov cl, 1
 
     mov ax, LOADER_SEG
     mov es, ax
@@ -99,6 +99,55 @@ next_sector_in_root_dir:
 filename_found:
     mov bp, FoundMessage
     call DispStr
+    
+    mov ax, RootDirSectors
+    and di, 0xfff0
+    add di, 0x1a
+
+    mov cx, word [es:di]; first cluster index of file
+
+    push cx
+
+    add cx, RootDirSectors
+    add dx, DeltaSectorNo; cluster_index + dictory_space + file_start_Sector= file_start_sector_index
+
+    mov ax, LOADER_SEG
+    mov es, ax
+    mov bx, LOADER_OFFSET
+
+    mov ax, cx; ax = file_start_sector_index
+
+loading_file:
+    push ax
+    push bx
+    mov ah, 0xe
+    mov al, '.'
+    mov bl, 0x7
+    int 0x10
+
+    pop bx
+    pop ax
+
+    mov si, ax
+    mov cl, 1
+    call readSect
+
+    pop ax; recover first cluster index
+    call get_fat_entry
+    cmp ax, 0xff8
+    jae file_loaded
+
+    ;load next one
+    push ax
+    add ax, RootDirSectors
+    add ax, DeltaSectorNo
+    add bx, [BPB_BytsPerSec]
+    jmp loading_file
+
+
+file_loaded:
+    mov bp, FinishMessage
+    call DispStr
     jmp $
 
 no_file:
@@ -106,15 +155,11 @@ no_file:
     call DispStr
     jmp $
 
-wRootDirSizeLoop dw RootDirSectors
-wSector dw 0
+
 
 DispStr:
     ; call bios to show string
-    push ax
-    push bx
-    push cx
-    push dx
+    pusha
 
     mov al, 1
     xor bh, bh
@@ -129,18 +174,15 @@ DispStr:
     mov ah, 0x13
     int 0x10
 
-    pop dx
-    pop cx
-    pop bx
-    pop ax
+    popa
 
     ret
 
 ;si: logic index
 readSect:
     push ax
-    push cx
     push dx
+    push cx
     push bx
 
     mov ax, si
@@ -161,10 +203,11 @@ readSect:
     mov ch, al
     xor dl, dl; device number
     pop bx
+    pop cx
 rp_read:
 
     mov ah, 2
-    mov al, 1
+    mov al, cl
     ;load data to es:bx
     int 0x13
 ; when int 0x13 failed, carry flag will be set as 1
@@ -173,17 +216,79 @@ rp_read:
 
     ;reverse to push
     pop dx
-    pop cx
+    
     
     pop ax
 
     ret
 
+;find a cluster index as ax, return its index in fat item in ax
+get_fat_entry:
+    push es
+    push bx
+    push ax
+
+    mov ax, LOADER_SEG - 0x100
+    mov es, ax
+
+    pop ax
+
+    ;calculate cluster offset in fat table. And the Parity
+    ; offset = cluster_index * 3/ 2, because each item has 12bits
+    mov byte [isOdd], 0
+    mov bx, 3
+    mul bx
+
+    mov bx, 2
+    div bx  ;ax result, dx mod
+    
+    cmp dx, 0
+
+    je even
+    mov byte[isOdd], 1
+
+even:
+    xor dx, dx
+    mov bx, [BPB_BytsPerSec]
+    div bx
+
+    push dx
+
+    xor bx, bx ;es:bx --> LOADER_SEG-0x100:0
+
+    add ax, SectorNoOfFAT1
+    mov si, ax
+    mov cl, 2
+    call readSect
+
+    pop dx
+
+    add bx, dx
+
+    mov ax, [es:bx]
+    cmp byte [isOdd], 1
+    jne EVEN_2
+    shr ax, 4
+    jmp get_fat_entry_ok
+
+EVEN_2:
+    and ax, 0x0FFF
+
+
+get_fat_entry_ok: 
+    pop bx
+    pop es
+    ret
+
+wRootDirSizeLoop dw RootDirSectors
+wSector dw 0
+isOdd db 0
+
 loader_filename db "LOADER  BIN", 0
 BootMessage:    db "Booting......"
-FoundMessage:   db "found     it!"
+FoundMessage:   db "Loading......"
 NoFileMessage:  db "no loader    "
-
+FinishMessage:  db "loader finish"
 times 510 - ($-$$) db 0
 
 dw 0xAA55
