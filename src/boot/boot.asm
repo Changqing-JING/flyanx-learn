@@ -41,12 +41,14 @@ search_file_in_root_dir_begin:
 
     dec word [wRootDirSizeLoop]
 
-    mov si, [wSector]
-    mov cl, 1
+    
 
     mov ax, LOADER_SEG
     mov es, ax
     mov bx,LOADER_OFFSET
+
+    mov ax, [wSector]
+    mov cl, 1
 
     call readSect
 
@@ -128,7 +130,6 @@ loading_file:
     pop bx
     pop ax
 
-    mov si, ax
     mov cl, 1
     call readSect
 
@@ -185,7 +186,6 @@ readSect:
     push cx
     push bx
 
-    mov ax, si
     mov si, cx
     xor dx, dx
     mov bx, 18
@@ -256,7 +256,6 @@ even:
     xor bx, bx ;es:bx --> LOADER_SEG-0x100:0
 
     add ax, SectorNoOfFAT1
-    mov si, ax
     mov cl, 2
     call readSect
 
