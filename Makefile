@@ -7,7 +7,7 @@ boot.o: ./src/boot/boot.asm
 	nasm -f elf -o ./target/$@ $<
 
 loader.bin: ./src/boot/loader.asm
-	@nasm -o ./target/$@ $<
+	@nasm -i./src/boot/include/ -o ./target/$@ $<
 
 flyanx.img: boot.bin
 	@cat ./target/$<  > ./target/$@
