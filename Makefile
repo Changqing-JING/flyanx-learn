@@ -4,7 +4,7 @@ tb = target/boot
 t = target
 
 srcBoot = ./src/boot
-
+FD = flyanx.img
 $(tb):
 	@mkdir $@
 
@@ -18,14 +18,16 @@ $(tb)/boot.bin: $(srcBoot)/boot.asm
 $(tb)/loader.bin: $(srcBoot)/loader.asm
 	@nasm $(IncludeFlags) -o $@ $<
 
-image: all
-	@dd if=/dev/zero of=$(tb)/0.bin bs=1M count=1
-	@cat $(tb)/boot.bin $(tb)/0.bin > $(t)/flyanx.img
+image: all $(FD)
+	@dd if=$(tb)/boot.bin of=$(t)/$(FD) bs=512 count=1 conv=notrunc
 	@make mountImg
 	@sudo cp -f -i $(tb)/loader.bin $(ImgMountPoint)/loader.bin
 	@make unmountImg
 
-mountImg: $(t)/flyanx.img
+$(FD):
+	@dd if=/dev/zero of=$(t)/$(FD) bs=512 count=2880
+
+mountImg: $(t)/$(FD)
 	@sudo mount -t msdos -o loop $< $(ImgMountPoint)/
 
 unmountImg:
@@ -34,7 +36,7 @@ unmountImg:
 clean:
 	@rm -rf $(t)/*
 
-run: $(t)/flyanx.img
+run: $(t)/$(FD)
 	@qemu-system-i386 -boot a -fda $<
 
 runBochs:
