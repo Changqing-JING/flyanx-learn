@@ -1,48 +1,48 @@
-all: flyanx.img loader.bin
+ImgMountPoint =/media/floppyDisk
+IncludeFlags =-i./src/boot/include/
+tb = target/boot
+t = target
 
-boot.bin: ./src/boot/boot.asm
-	@nasm -i./src/boot/include/ -o ./target/$@ $<
+srcBoot = ./src/boot
 
-boot.o: ./src/boot/boot.asm
-	nasm -f elf -o ./target/$@ $<
+$(tb):
+	@mkdir $@
 
-loader.bin: ./src/boot/loader.asm
-	@nasm -i./src/boot/include/ -o ./target/$@ $<
+createDir: $(tb)
 
-flyanx.img: boot.bin
-	@cat ./target/$<  > ./target/$@
+all: createDir $(tb)/boot.bin $(tb)/loader.bin
 
-createFloppyDisk: boot.bin loader.bin
-	@dd if=/dev/zero of=./target/0.bin bs=1M count=1
-	@cat ./target/$< ./target/0.bin > ./target/flyanx.img
+$(tb)/boot.bin: $(srcBoot)/boot.asm
+	@nasm $(IncludeFlags) -o $@ $<
 
-createFloppyDisk2:
-	@dd if=./target/$< of=./target/flyanx.img bs=512 count=1 conv=notrunc
+$(tb)/loader.bin: $(srcBoot)/loader.asm
+	@nasm $(IncludeFlags) -o $@ $<
 
-mountImg: ./target/flyanx.img
-	@sudo mount -t msdos -o loop $< /media/floppyDisk/
+image: all
+	@dd if=/dev/zero of=$(tb)/0.bin bs=1M count=1
+	@cat $(tb)/boot.bin $(tb)/0.bin > $(t)/flyanx.img
+	@make mountImg
+	@sudo cp -f -i $(tb)/loader.bin $(ImgMountPoint)/loader.bin
+	@make unmountImg
+
+mountImg: $(t)/flyanx.img
+	@sudo mount -t msdos -o loop $< $(ImgMountPoint)/
 
 unmountImg:
-	@sudo umount /media/floppyDisk/
+	@sudo umount $(ImgMountPoint)/
 
 clean:
-	@rm -rf ./target/*
+	@rm -rf $(t)/*
 
-run: ./target/flyanx.img
-	make mountImg
-	sudo cp -i ./target/loader.bin /media/floppyDisk/loader.bin
-	make unmountImg
+run: $(t)/flyanx.img
 	@qemu-system-i386 -boot a -fda $<
 
 runBochs:
 	@bochs
 
-deasmElf: ./target/boot.o
-	@objdump -S $<
-
-deasm: ./target/boot.bin
+deasm: $(tb)/boot.bin
 	@ndisasm $<
 
 remake:
 	@make clean
-	@make createFloppyDisk
+	@make image
