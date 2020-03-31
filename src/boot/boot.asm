@@ -161,6 +161,7 @@ no_file:
 DispStr:
     ; call bios to show string
     pusha
+    push es
 
     mov al, 1
     xor bh, bh
@@ -175,6 +176,7 @@ DispStr:
     mov ah, 0x13
     int 0x10
 
+    pop es
     popa
 
     ret
@@ -225,12 +227,9 @@ rp_read:
 get_fat_entry:
     push es
     push bx
-    push ax
 
-    mov ax, LOADER_SEG - 0x100
-    mov es, ax
-
-    pop ax
+    mov bx, LOADER_SEG - 0x100
+    mov es, bx
 
     ;calculate cluster offset in fat table. And the Parity
     ; offset = cluster_index * 3/ 2, because each item has 12bits
