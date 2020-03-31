@@ -109,7 +109,7 @@ filename_found:
     push cx
 
     add cx, RootDirSectors
-    add dx, DeltaSectorNo; cluster_index + dictory_space + file_start_Sector= file_start_sector_index
+    add cx, DeltaSectorNo; cluster_index + dictory_space + file_start_Sector= file_start_sector_index
 
     mov ax, LOADER_SEG
     mov es, ax
@@ -122,7 +122,7 @@ loading_file:
     push bx
     mov ah, 0xe
     mov al, '.'
-    mov bl, 0x7
+    mov bl, 0xf
     int 0x10
 
     pop bx
@@ -186,6 +186,7 @@ readSect:
     push bx
 
     mov ax, si
+    mov si, cx
     xor dx, dx
     mov bx, 18
     div bx  ; ax % bx = dx ax/bx = ax
@@ -203,11 +204,10 @@ readSect:
     mov ch, al
     xor dl, dl; device number
     pop bx
-    pop cx
+    
 rp_read:
-
+    mov ax, si
     mov ah, 2
-    mov al, cl
     ;load data to es:bx
     int 0x13
 ; when int 0x13 failed, carry flag will be set as 1
@@ -215,9 +215,8 @@ rp_read:
     jc rp_read 
 
     ;reverse to push
+    pop cx
     pop dx
-    
-    
     pop ax
 
     ret
