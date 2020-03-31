@@ -149,7 +149,7 @@ loading_file:
 file_loaded:
     mov bp, FinishMessage
     call DispStr
-    jmp $
+    jmp LOADER_SEG:LOADER_OFFSET; jump to loader
 
 no_file:
     mov bp, NoFileMessage
