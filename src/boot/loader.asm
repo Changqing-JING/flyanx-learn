@@ -5,6 +5,9 @@ StackBase equ 0x100
 
 jmp start
 
+%include "load.inc"
+%include "fat12hdr.inc"
+
 start:
     mov ax, cs
     mov es, ax
@@ -40,13 +43,27 @@ MemChkFail:
 MemChkFinish:
     mov bp, MessageMemChkSuccess
     call DispStr
-    jmp $
+
+    jmp start_read_file
 
 
 
 %include "DispStr.inc"
 
+
+FILE_SEG equ KERNEL_SEG
+FILE_OFFSET equ KERNEL_OFFSET
+%include "readFileFAT12.asm"
+
+file_loaded_callback:
+    mov bp, MessageKernel
+    call DispStr
+    jmp $
+
+
+filename db "KERNEL  BIN", 0
 Message: db "Hello Loader!"
+MessageKernel: db "Hello Kernel!"
 MessageMemChkSuccess db "Mem Chk OK   "
 MessageMemChkFailed db "Mem Chk Fail "
 

@@ -1,3 +1,7 @@
+%ifndef definedDispStr
+
+%define definedDispStr
+
 DispStr:
     ; call bios to show string in bp
     pusha
@@ -20,3 +24,5 @@ DispStr:
     popa
 
     ret
+
+%endif

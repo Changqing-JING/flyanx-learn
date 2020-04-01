@@ -22,6 +22,7 @@ image: all $(FD)
 	@dd if=$(tb)/boot.bin of=$(t)/$(FD) bs=512 count=1 conv=notrunc
 	@make mountImg
 	@sudo cp -f -i $(tb)/loader.bin $(ImgMountPoint)/loader.bin
+	@sudo cp -f -i $(tb)/loader.bin $(ImgMountPoint)/kernel.bin
 	@make unmountImg
 
 $(FD):
