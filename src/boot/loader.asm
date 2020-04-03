@@ -2,7 +2,7 @@
 
 org 0x100
 StackBase equ 0x100
-
+FILE_HAVE_SPACE equ 0x2000 * 0x10
 jmp start
 
 %include "load.inc"
@@ -56,16 +56,29 @@ FILE_OFFSET equ KERNEL_OFFSET
 %include "readFileFAT12.asm"
 
 file_loaded_callback:
+
+    call KillMotor
+
     mov bp, MessageKernel
     call DispStr
     jmp $
 
+KillMotor:
+    push	dx
+    push ax
+ 	mov	dx, 03F2h
+ 	xor	al, al
+ 	out	dx, al
+    pop ax
+ 	pop	dx
+    ret
 
-filename db "KERNEL  BIN", 0
+
+filename: db "KERNEL  BIN", 0
 Message: db "Hello Loader!"
 MessageKernel: db "Hello Kernel!"
-MessageMemChkSuccess db "Mem Chk OK   "
-MessageMemChkFailed db "Mem Chk Fail "
+MessageMemChkSuccess: db "Mem Chk OK   "
+MessageMemChkFailed: db "Mem Chk Fail "
 
 ;16bits data
 

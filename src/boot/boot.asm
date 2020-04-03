@@ -21,23 +21,18 @@ start:
     mov ss, ax
     mov sp, StackBase
 
-    mov bp, BootMessage
-    call DispStr
-
     jmp start_read_file
 
-
-%include "DispStr.inc"
 
 
 
 FILE_SEG equ LOADER_SEG
 FILE_OFFSET equ LOADER_OFFSET
+FILE_HAVE_SPACE equ 0x2000 * 0x10
 %include "readFileFAT12.asm"
 
 file_loaded_callback:
     mov bp, FinishMessage
-    call DispStr
     jmp FILE_SEG:FILE_OFFSET; jump to loader
 
 filename db "LOADER  BIN", 0

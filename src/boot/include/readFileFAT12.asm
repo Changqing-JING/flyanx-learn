@@ -1,3 +1,6 @@
+
+
+
 start_read_file:
     ;reset floppyDisk
     xor ah, ah
@@ -69,24 +72,35 @@ different:
     jmp search_for_file; search next dictory item
 
 next_sector_in_root_dir:
-    add word[wSector], 1
+    inc word[wSector]
     jmp search_file_in_root_dir_begin
 
 
     
 filename_found:
+
+    and di, 0xfff0
+    mov eax, [es:di + 0x1c]     ; FAT目录项第0x1c处偏移是文件大小
+
+    mov dword [fileSize], eax; fix me
+
+    cmp eax, FILE_HAVE_SPACE
+
+    ja FILE_TOO_LARGE
+
     mov bp, FoundMessage
     call DispStr
     
     mov ax, RootDirSectors
-    and di, 0xfff0
+    
     add di, 0x1a
 
     mov cx, word [es:di]; first cluster index of file
 
+    
     push cx
 
-    add cx, RootDirSectors
+    add cx, ax
     add cx, DeltaSectorNo; cluster_index + dictory_space + file_start_Sector= file_start_sector_index
 
     mov ax, FILE_SEG
@@ -96,15 +110,6 @@ filename_found:
     mov ax, cx; ax = file_start_sector_index
 
 loading_file:
-    push ax
-    push bx
-    mov ah, 0xe
-    mov al, '.'
-    mov bl, 0xf
-    int 0x10
-
-    pop bx
-    pop ax
 
     mov cl, 1
     call readSect
@@ -119,8 +124,22 @@ loading_file:
     add ax, RootDirSectors
     add ax, DeltaSectorNo
     add bx, [BPB_BytsPerSec]
+    jc FILE_GREAT_64KB
     jmp loading_file
 
+FILE_GREAT_64KB:
+    ; es += 0x1000，es指向下一个段，准备继续加载
+    push ax
+    mov ax, es
+    add ax, 0x1000
+    mov es, ax
+    pop ax
+    jmp loading_file
+
+FILE_TOO_LARGE:
+    mov bp, KernelTooLargeMessage
+    call DispStr                ; 打印"Too Large!"
+    jmp $     
 
 
 
@@ -128,9 +147,6 @@ no_file:
     mov bp, NoFileMessage
     call DispStr
     jmp $
-
-
-
 
 
 ;si: logic index
@@ -236,9 +252,10 @@ get_fat_entry_ok:
 wRootDirSizeLoop dw RootDirSectors
 wSector dw 0
 isOdd db 0
+fileSize dd 0
 
 
-BootMessage:    db "Booting......"
 FoundMessage:   db "Loading......"
 NoFileMessage:  db "no file      "
 FinishMessage:  db "loader finish"
+KernelTooLargeMessage:  db "file to large"
