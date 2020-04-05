@@ -5,6 +5,9 @@ t = target
 
 srcBoot = ./src/boot
 FD = flyanx.img
+
+.PHONY=clean run runBochs
+
 $(tb):
 	@mkdir $@
 
