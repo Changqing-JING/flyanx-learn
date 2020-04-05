@@ -381,7 +381,7 @@ _strKB: dd " KB", 0
 
 ddMCRCount equ LOADER_PHY_ADDR + _ddMCRCount
 ddMemSize equ LOADER_PHY_ADDR + _ddMemSize
-ARDS:
+ARDS equ LOADER_PHY_ADDR + _ARDS
     ddBaseAddrLow equ LOADER_PHY_ADDR + _ddBaseAddrLow
     ddBaseAddrHigh equ LOADER_PHY_ADDR + _ddBaseAddrHigh
     ddLengthLow equ LOADER_PHY_ADDR + _ddLengthLow
