@@ -179,7 +179,7 @@ calMemSize:
 
 .1:
     ;mov number i ARDS in buffer into ds:edi
-    mov eax, esi
+    mov eax, dword [esi]
 
     stosd   ;copy ds:eax to ds:edi
 
@@ -205,7 +205,7 @@ calMemSize:
 
 
     
-.2
+.2:
     loop .loopi
 
     pop edi
