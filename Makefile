@@ -38,7 +38,7 @@ clean:
 	@rm -rf $(t)/*
 
 run: $(t)/$(FD)
-	@qemu-system-i386 -boot a -fda $<
+	@qemu-system-i386 -m 256 -boot a -fda $<
 
 runBochs:
 	@bochs
