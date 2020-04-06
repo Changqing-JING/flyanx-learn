@@ -33,6 +33,8 @@ start:
     mov bp, Message
     call DispStr
 
+    jmp MemChk
+MemChk:
     xor ebx, ebx ;start with 0
     mov di, _MemChkBuf
 ;save ARDS in es:di
@@ -92,16 +94,7 @@ file_loaded_callback:
     ;enter 32bit code
     jmp dword SelectorCode:PM_32_start+LOADER_PHY_ADDR
     
-
-KillMotor:
-    push	dx
-    push ax
- 	mov	dx, 03F2h
- 	xor	al, al
- 	out	dx, al
-    pop ax
- 	pop	dx
-    ret
+%include "loader_16lib.asm"
 
 
 
@@ -160,201 +153,11 @@ PM_32_start:
     ;print Memory size
     call PrintMemSize
 
+    call SetupPaging
+
     jmp $
 
-;calculate memory size based on ARDS
-calMemSize:
-
-    push esi
-    push ecx
-    push edx
-    push edi
-
-    mov esi, MemChkBuf
-    mov ecx, [ddMCRCount] ;i
-
-.loopi:
-    mov edx, 5 ;ARDS has 5 members, j
-    mov edi, ARDS ;ds:edi->ARDS
-
-.1:
-    ;mov number i ARDS in buffer into ds:edi
-    mov eax, dword [esi]
-
-    stosd   ;copy ds:eax to ds:edi
-
-    add esi, 4
-
-    dec edx
-
-    cmp edx, 0
-    jnz .1
-
-    cmp dword [ddType], 1
-    jne .2 ; not valid address for os
-
-    ; eax = base_address_low + length_low
-    ; 32bits CPU only have low part, the High part is only for 64bits cpu
-    mov eax, [ddBaseAddrLow]
-    add eax, [ddLengthLow]
-
-    cmp eax, [ddMemSize]
-    jb .2
-
-    mov dword [ddMemSize], eax
-
-
-    
-.2:
-    loop .loopi
-
-    pop edi
-    pop edx
-    pop ecx
-    pop esi
-
-    ret
-
-PrintMemSize:
-    push ebx
-    push ecx
-
-    mov eax, [ddMemSize]
-    shr eax, 10 ;memory/1024 to kb
-
-    push eax
-    ;print "Memory size %d"
-    push strMemSize
-    call Print
-    add esp, 4
-
-    call PrintInt
-    add esp, 4
-
-    ;print "KB"
-    push strKB
-    call Print
-    add esp, 4
-
-    pop ecx
-    pop ebx
-    ret
-
-;print(void* ds:ptr), ptr: a string end with '/0'
-Print:
-    push esi
-    push edi
-    push ebx
-    push ecx
-    push edx
-
-    mov esi, [esp+4*6]
-
-    mov edi, [ddDispPosition]
-    mov ah, 0xf
-.1:
-    lodsb; ds:esi->al, esi++
-    test al, al
-    jz .PrintEnd
-    cmp al, 10
-    je .2
-    ;if not 0 and not '\n', print it
-    mov [gs:edi], ax
-    add edi, 2
-    jmp .1
-
-.2:
-    push eax
-    mov eax, edi
-    mov bl, 160
-    div bl
-    inc eax; row++
-    mov bl, 160
-    mul bl
-    mov edi, eax
-
-    pop eax
-    jmp .1
-
-.PrintEnd:
-    mov dword [ddDispPosition], edi
-
-
-    pop edx
-    pop ecx
-    pop ebx
-    pop edi
-    pop esi
-    ret
-
-PrintAl:
-	push ecx
-	push edx
-	push edi
-	push eax
-
-	mov edi, [ddDispPosition]	; 得到显示位置
-
-	mov ah, 0Fh		; 0000b: 黑底	1111b: 白字
-	mov dl, al
-	shr al, 4
-	mov ecx, 2
-.begin:
-	and al, 01111b
-	cmp al, 9
-	ja	.1
-	add al, '0'
-	jmp	.2
-.1:
-	sub al, 10
-	add al, 'A'
-.2:
-	mov [gs:edi], ax
-	add edi, 2
-
-	mov al, dl
-	loop .begin
-
-	mov [ddDispPosition], edi	; 显示完毕后，设置新的显示位置
-
-    pop eax
-	pop edi
-	pop edx
-	pop ecx
-
-	ret
-;============================================================================
-;   显示一个整形数
-;----------------------------------------------------------------------------
-PrintInt:
-    mov	ah, 0Fh			; 0000b: 黑底    1111b: 白字
-    mov	al, '0'
-    push	edi
-    mov	edi, [ddDispPosition]
-    mov	[gs:edi], ax
-    add edi, 2
-    mov	al, 'x'
-    mov	[gs:edi], ax
-    add	edi, 2
-    mov	[ddDispPosition], edi	; 显示完毕后，设置新的显示位置
-    pop edi
-
-	mov	eax, [esp + 4]
-	shr	eax, 24
-	call	PrintAl
-
-	mov	eax, [esp + 4]
-	shr	eax, 16
-	call	PrintAl
-
-	mov	eax, [esp + 4]
-	shr	eax, 8
-	call	PrintAl
-
-	mov	eax, [esp + 4]
-	call	PrintAl
-
-	ret
+%include "loader_32lib.asm"
 
 ;32bit data
 [section data32]
@@ -378,6 +181,7 @@ _MemChkBuf:          times 256 db 0
 _ddDispPosition: dd (80*4 + 0)*2 ; row 4 column 0
 _strMemSize: dd "Memory size:", 0
 _strKB: dd " KB", 0
+_strSetupPaging:    db "Setup paging.", 10, 0
 
 ddMCRCount equ LOADER_PHY_ADDR + _ddMCRCount
 ddMemSize equ LOADER_PHY_ADDR + _ddMemSize
@@ -394,7 +198,7 @@ strMemSize equ LOADER_PHY_ADDR + _strMemSize
 strKB equ LOADER_PHY_ADDR + _strKB
 StackSpace: times 0x1000 db 0
 TopOfStack: equ $ + LOADER_PHY_ADDR
-
+strSetupPaging equ LOADER_PHY_ADDR + _strSetupPaging
 
 
 
