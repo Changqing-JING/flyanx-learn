@@ -262,15 +262,9 @@ MemCpy:
     mov ecx, [esp + 4*6]
 
 .Copy:
-    cmp ecx, 0
-    jz .CpyEnd
-    ;rep movsb
-    mov al, [ds:esi]            ; 拷贝一字节给al
-    inc esi                     ; esi++，指向下一个要拷贝的字节
-    mov [es:edi], al            ; 拷贝al字节给目的地
-    inc edi
+    cld
+    rep movsb
 
-    loop .Copy  
 .CpyEnd:
 
     mov eax, [esp + 4*4]
