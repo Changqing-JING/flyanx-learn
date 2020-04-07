@@ -158,14 +158,14 @@ PM_32_start:
     call InitKernelFile
 
     ;save some key parameter before jump to kernel
-    mov dword [BOOT_PARAM_ADDR + 0], BOOT_PARAM_ADDR
+    mov dword [BOOT_PARAM_ADDR + 0], BOOT_PARAM_MAGIC
     mov eax, [ddMemSize]
     mov dword [BOOT_PARAM_ADDR + 4], eax
     mov eax, KERNEL_PHY_ADDR
     add eax, KERNEL_OFFSET
 
     mov dword [BOOT_PARAM_ADDR + 8], eax
-    
+
 
     jmp SelectorCode:KERNEL_ENTRY_POINT_PHY_ADDR ;jmp to kernel
 
