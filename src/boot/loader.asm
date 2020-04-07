@@ -155,8 +155,69 @@ PM_32_start:
 
     call SetupPaging
 
-    jmp $
+    call InitKernelFile
 
+    jmp SelectorCode:KERNEL_ENTRY_POINT_PHY_ADDR ;jmp to kernel
+
+
+;Memcpy asm version
+
+MemCpy:
+    push esi
+    push edi
+    push ecx
+
+    mov edi, [esp + 4*4]
+    mov esi, [esp + 4*5]
+    mov ecx, [esp + 4*6]
+
+.Copy:
+    cmp ecx, 0
+    jz .CpyEnd
+    ;rep movsb
+    mov al, [ds:esi]            ; 拷贝一字节给al
+    inc esi                     ; esi++，指向下一个要拷贝的字节
+    mov [es:edi], al            ; 拷贝al字节给目的地
+    inc edi
+
+    loop .Copy  
+.CpyEnd:
+
+    mov eax, [esp + 4*4]
+    pop ecx
+    pop edi
+    pop esi
+
+    ret
+
+;copy Kernel.bin to kernel physical address
+InitKernelFile:
+    xor esi, esi 
+    xor ecx, ecx
+    mov cx, word [KERNEL_PHY_ADDR + 44] ;number of sections in elf header
+    mov esi, [KERNEL_PHY_ADDR + 28] ;offset in file
+    add esi, KERNEL_PHY_ADDR ;offset in memory = offset in file + memory start address
+.Begin:
+    mov eax, [esi + 0] ; eax = e_type, section type
+    cmp eax, 0
+    je .NoAction; invalid section
+
+    push dword[esi + 16] ;section length
+    mov eax, [esi + 4] 
+    add eax, KERNEL_PHY_ADDR ; eax->address of section in memory
+    push eax
+    push dword [esi + 8]
+    call MemCpy
+    add esp, 4*3
+
+
+.NoAction:
+    add esi, 32 ;esi += Program_header_length
+    dec ecx
+    cmp ecx, 0
+    jnz .Begin
+
+    ret
 %include "loader_32lib.asm"
 
 ;32bit data
