@@ -5,4 +5,5 @@ void low_print(const char * s);
 
 void flyanx_main(){
     low_print("Hello Kernel");
+    while(1){}
 }
