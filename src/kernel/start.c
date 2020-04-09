@@ -1,8 +1,6 @@
 
 #include "kernel.h"
 #include "protect.h"
-#include "global.h"
-#include "prototype.h"
 
 void cstart(){
     display_position = (80*6 + 2 *0)*2;
@@ -13,7 +11,7 @@ void cstart(){
     
 
     //init protect mode
-    void protect_init();
+    protect_init();
 
     u32_t* p_boot_params = (u32_t*)BOOT_PARAM_ADDR;
 
