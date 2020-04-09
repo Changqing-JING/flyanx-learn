@@ -3,20 +3,28 @@ IncludeFlags =-i./src/boot/include/
 tb = target/boot
 tk = target/kernel
 t = target
+tansi = target/lib/ansi
+includePath = ./include
+kernelIncludePath = ./src/kernel/include/
+includeASMLib = -i./src/lib/ansi/
 
 srcBoot = ./src/boot
 srcKernel = ./src/kernel
+srcAnsi = ./src/lib/ansi
 FD = flyanx.img
 
 .PHONY=clean run runBochs
 
 $(tb):
-	@mkdir $@
+	@mkdir -p $@
 
 $(tk):
-	@mkdir $@
+	@mkdir -p $@
 
-createDir: $(tb) $(tk) 
+$(tansi):
+	@mkdir -p $@
+
+createDir: $(tb) $(tk) $(tansi)
 
 all: createDir $(tb)/boot.bin $(tb)/loader.bin $(tk)/kernel.bin
 
@@ -24,18 +32,31 @@ $(tb)/boot.bin: $(srcBoot)/boot.asm
 	@nasm $(IncludeFlags) -o $@ $<
 
 $(tb)/loader.bin: $(srcBoot)/loader.asm
-	@nasm $(IncludeFlags) -o $@ $<
+	@nasm $(IncludeFlags) $(includeASMLib) -o $@ $<
 
 $(tk)/kernel.o: $(srcKernel)/kernel.asm
-	@nasm -f elf -o $@ $<
+	@nasm -i$(kernelIncludePath) -f elf -o $@ $<
+
+$(tansi)/string.o: $(srcAnsi)/string.asm
+	@nasm $(includeASMLib) -f elf -o $@ $<
 
 $(tk)/kernel_386lib.o: $(srcKernel)/kernel_386lib.asm
-	@nasm -f elf -o $@ $<
+	@nasm -i$(kernelIncludePath) $(includeASMLib) -f elf -o $@ $<
 
 $(tk)/main.o: $(srcKernel)/main.c
-	@gcc -m32 -I./include -c -o $@ $<
+	@gcc -m32 -I$(includePath)  -c -o $@ $<
 
-$(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o
+
+$(tk)/start.o: $(srcKernel)/start.c
+	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
+
+$(tk)/table.o: $(srcKernel)/table.c
+	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
+
+$(tk)/protect.o: $(srcKernel)/protect.c
+	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
+
+$(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o $(tk)/start.o $(tk)/protect.o $(tk)/table.o $(tansi)/string.o
 	@ld -m elf_i386 -N -e _start -Ttext 0x1000 -o $@ $^
 
 

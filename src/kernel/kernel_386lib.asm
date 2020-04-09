@@ -1,5 +1,6 @@
 extern display_position
 global low_print
+global phys_copy
 
 low_print:
     push esi
@@ -46,3 +47,5 @@ low_print:
     pop edi
     pop esi
     ret
+
+%include "memcpy.asm"

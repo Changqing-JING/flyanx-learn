@@ -250,29 +250,7 @@ SetupPaging:
      popa
      ret
 
-     ;Memcpy asm version
-
-MemCpy:
-    push esi
-    push edi
-    push ecx
-
-    mov edi, [esp + 4*4]
-    mov esi, [esp + 4*5]
-    mov ecx, [esp + 4*6]
-
-.Copy:
-    cld
-    rep movsb
-
-.CpyEnd:
-
-    mov eax, [esp + 4*4]
-    pop ecx
-    pop edi
-    pop esi
-
-    ret
+%include "memcpy.asm"
 
 ;copy Kernel.bin to kernel physical address
 InitKernelFile:
@@ -291,7 +269,7 @@ InitKernelFile:
     add eax, KERNEL_PHY_ADDR ; eax->address of section in memory
     push eax
     push dword [esi + 8]
-    call MemCpy
+    call memcpy
     add esp, 4*3
 
 
