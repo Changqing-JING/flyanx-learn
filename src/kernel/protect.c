@@ -10,6 +10,58 @@ PRIVATE Gate_t idt[IDT_SIZE];
 /* 任务状态段TSS(Task-State Segment) */
 PUBLIC Tss_t tss;
 
+struct gate_desc_s {
+    u8_t vector;            /* 中断向量号 */
+    int_handler_t handler;  /* 处理例程 */
+    u8_t privilege;         /* 门权限 */
+};
+
+
+struct gate_desc_s int_gate_table[] = {
+        /* ************* 异常 *************** */
+        { INT_VECTOR_DIVIDE, divide_error, KERNEL_PRIVILEGE },
+        { INT_VECTOR_DEBUG, single_step_exception, KERNEL_PRIVILEGE },
+        { INT_VECTOR_NMI, nmi, KERNEL_PRIVILEGE },
+        { INT_VECTOR_BREAKPOINT, breakpoint_exception, KERNEL_PRIVILEGE },
+        { INT_VECTOR_OVERFLOW, overflow, KERNEL_PRIVILEGE },
+        { INT_VECTOR_BOUNDS, bounds_check, KERNEL_PRIVILEGE },
+        { INT_VECTOR_INVAL_OP, inval_opcode, KERNEL_PRIVILEGE },
+        { INT_VECTOR_COPROC_NOT, copr_not_available, KERNEL_PRIVILEGE },
+        { INT_VECTOR_DOUBLE_FAULT, double_fault, KERNEL_PRIVILEGE },
+        { INT_VECTOR_COPROC_SEG, copr_seg_overrun, KERNEL_PRIVILEGE },
+        { INT_VECTOR_INVAL_TSS, inval_tss, KERNEL_PRIVILEGE },
+        { INT_VECTOR_SEG_NOT, segment_not_present, KERNEL_PRIVILEGE },
+        { INT_VECTOR_STACK_FAULT, stack_exception, KERNEL_PRIVILEGE },
+        { INT_VECTOR_PROTECTION, general_protection, KERNEL_PRIVILEGE },
+        { INT_VECTOR_PAGE_FAULT, page_fault, KERNEL_PRIVILEGE },
+        { INT_VECTOR_COPROC_ERR, copr_error, KERNEL_PRIVILEGE },
+        /* ************* 硬件中断 *************** */
+
+        /* ************* 软件中断 *************** */
+};
+
+PRIVATE void init_gate(
+        u8_t vector,
+        u8_t desc_type,
+        int_handler_t  handler,
+        u8_t privilege
+)
+{
+    // 得到中断向量对应的门结构
+    Gate_t* p_gate = &idt[vector];
+    // 取得处理函数的基地址
+    u32_t base_addr = (u32_t)handler;
+    // 一一赋值
+    p_gate->offset_low = base_addr & 0xFFFF;
+    p_gate->selector = SELECTOR_KERNEL_CS;
+    p_gate->dcount = 0;
+    p_gate->attr = desc_type | (privilege << 5);
+#if _WORD_SIZE == 4
+    p_gate->offset_high = (base_addr >> 16) & 0xFFFF;
+#endif
+}
+
+
 void protect_init(){
     
 
@@ -32,7 +84,14 @@ void protect_init(){
     *p_idt_limit = IDT_SIZE * sizeof(Gate_t) -1;
     *p_idt_base = vir2phys(&idt);
 
+    // add interrupt gate into idt
+     struct gate_desc_s* p_gate = &int_gate_table[0];
 
+     for(; p_gate < &int_gate_table[sizeof(int_gate_table) / sizeof(struct gate_desc_s)]; p_gate++){
+        init_gate(p_gate->vector, DA_386IGate, p_gate->handler, p_gate->privilege);
+    }
+
+    //for calling fucntion in different ring
     memset((void*)vir2phys(&tss), 0, sizeof(tss));
     tss.ss0 = SELECTOR_KERNEL_DS;
     init_segment_desc(&gdt[TSS_INDEX], vir2phys(&tss), sizeof(tss)-1, DA_386TSS);

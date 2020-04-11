@@ -52,6 +52,9 @@
 #define	PRINTER_IRQ		    7       /* 打印机 */
 #define	AT_WINI_IRQ		    14	    /* at风格硬盘 */
 
+#define KERNEL_TEXT_SEG_BASE    0
+#define KERNEL_DATA_SEG_BASE    0
+
 /* 系统调用数量 */
 #define NR_SYS_CALL         0
 
@@ -116,7 +119,7 @@
 
 /* 将内核空间中的地址转换为物理地址。
  */
-#define	vir2phys(vir) (data_base + (vir_bytes)(vir))
+#define	vir2phys(vir) ((phys_bytes)(KERNEL_DATA_SEG_BASE) + (vir_bytes)(vir))
 
 /* 秒 转化为 毫秒 */
 #define second2ms(s) (s * 1000)

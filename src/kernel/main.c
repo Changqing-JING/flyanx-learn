@@ -5,5 +5,10 @@ void low_print(const char * s);
 
 void flyanx_main(){
     low_print("Hello OS");
+
+    int a = 0;
+
+    int b = 5/a;
+
     while(1){}
 }
