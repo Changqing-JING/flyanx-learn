@@ -1,4 +1,5 @@
 #include "kernel.h"
+#include "printk.h"
 
 /* 异常信息表 */
 PRIVATE char* exception_table[] = {
@@ -39,7 +40,7 @@ void exception_handler(int int_vector, int error_code){
 
         if(error_code != 0xffffffff){
 
-           low_print("should some error code here"); //fixme
+           k_printf("should some error code here %x\n", error_code);
         }
 
      }else{

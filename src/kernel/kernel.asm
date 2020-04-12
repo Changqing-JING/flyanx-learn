@@ -50,10 +50,9 @@ csinit:
     xor eax, eax
     mov ax, SELECTOR_TSS
     ltr ax
-    ud2
-    jmp 0x40:0
 
     ;jmp to C main function
+    jmp 0x40:0
     jmp flyanx_main
 ;----------------exception handler-------------------------
 divide_error:

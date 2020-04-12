@@ -44,7 +44,7 @@ $(tk)/kernel_386lib.o: $(srcKernel)/kernel_386lib.asm
 	@nasm -i$(kernelIncludePath) $(includeASMLib) -f elf -o $@ $<
 
 $(tk)/main.o: $(srcKernel)/main.c
-	@gcc -m32 -I$(includePath)  -c -o $@ $<
+	@gcc -m32 -I$(includePath) -I$(kernelIncludePath)  -c -o $@ $<
 
 
 $(tk)/start.o: $(srcKernel)/start.c
@@ -59,7 +59,10 @@ $(tk)/protect.o: $(srcKernel)/protect.c
 $(tk)/exception.o: $(srcKernel)/exception.c
 	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
 
-$(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o $(tk)/start.o $(tk)/protect.o $(tk)/table.o $(tk)/exception.o $(tansi)/string.o
+$(tk)/printk.o: $(srcKernel)/printk.c
+	@gcc -m32 -I$(srcKernel)/include -fno-stack-protector -c -o $@ $<
+
+$(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o $(tk)/start.o $(tk)/protect.o $(tk)/table.o $(tk)/exception.o $(tansi)/string.o $(tk)/printk.o
 	@ld -m elf_i386 -N -e _start -Ttext 0x1000 -o $@ $^
 
 
