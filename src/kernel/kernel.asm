@@ -70,8 +70,7 @@ csinit:
     mov ax, SELECTOR_TSS
     ltr ax
 
-    int 32 + 3
-    int 32 + 9
+    int 48
 
     ;jmp to C main function
     jmp flyanx_main

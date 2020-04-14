@@ -2,7 +2,7 @@
 #include "protect.h"
 #include "prototype.h"
 #include "global.h"
-
+#include "printk.h"
 /* 全局描述符表GDT */
 PUBLIC SegDescriptor_t gdt[GDT_SIZE];
 /* 中断描述符表IDT */
@@ -15,6 +15,10 @@ struct gate_desc_s {
     int_handler_t handler;  /* 处理例程 */
     u8_t privilege;         /* 门权限 */
 };
+
+void soft_interrupt_handler(){
+    k_printf("soft interrupt");
+}
 
 
 struct gate_desc_s int_gate_table[] = {
@@ -52,7 +56,7 @@ struct gate_desc_s int_gate_table[] = {
         { INT_VECTOR_IRQ8 + 5, hwint13, KERNEL_PRIVILEGE },
         { INT_VECTOR_IRQ8 + 6, hwint14, KERNEL_PRIVILEGE },
         { INT_VECTOR_IRQ8 + 7, hwint15, KERNEL_PRIVILEGE },
-
+         { 48, soft_interrupt_handler, KERNEL_PRIVILEGE },
         /* ************* 软件中断 *************** */
 };
 
