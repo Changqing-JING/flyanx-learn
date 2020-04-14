@@ -1,6 +1,12 @@
 
 #include "kernel.h"
 #include "protect.h"
+#include "printk.h"
+
+static int test_int(int irq){
+    k_printf("new int handler");
+    return DISABLE;
+}
 
 void cstart(){
     display_position = (80*6 + 2 *0)*2;
@@ -12,6 +18,10 @@ void cstart(){
 
     //init protect mode
     protect_init();
+
+    interrupt_init();
+
+    put_irq_handler(3, test_int);
 
     u32_t* p_boot_params = (u32_t*)BOOT_PARAM_ADDR;
 
