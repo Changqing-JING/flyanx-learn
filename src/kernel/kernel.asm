@@ -69,7 +69,7 @@ csinit:
     xor eax, eax
     mov ax, SELECTOR_TSS
     ltr ax
-
+	int 32
     ;jmp to C main function
     jmp flyanx_main
 ;----------------exception handler-------------------------
@@ -147,7 +147,9 @@ exception:
 %macro  hwint_master 1
     in al, INT_M_CTLMASK ;load 8259 shield mask map
     or al, (1<<%1)
+	out INT_M_CTLMASK, al
 
+	
     mov al, EOI
     out INT_M_CTL, al
     nop
