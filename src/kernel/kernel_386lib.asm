@@ -136,7 +136,7 @@ disable_irq:
     push ecx
 
         cli                     ; 先屏蔽所有中断
-        mov ecx, [esp + 4]      ; ecx = int_request(中断向量)
+        mov ecx, [esp + 4*3]      ; ecx = int_request(中断向量)
         ; 判断要关闭的中断来自于哪个 8259A
         mov ah, 1               ; ah = 00000001b
         rol ah, cl              ; ah = (1 << (int_request % 8))，算出在int_request位的置位位图，例如2的置位位图是00000100b
