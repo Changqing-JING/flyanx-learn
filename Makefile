@@ -62,10 +62,13 @@ $(tk)/exception.o: $(srcKernel)/exception.c
 $(tk)/printk.o: $(srcKernel)/printk.c
 	@gcc -m32 -I$(srcKernel)/include -fno-stack-protector -c -o $@ $<
 
+$(tk)/clock.o: $(srcKernel)/clock.c
+	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
+
 $(tk)/i8259.o: $(srcKernel)/i8259.c
 	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
 
-$(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o $(tk)/start.o $(tk)/protect.o $(tk)/table.o $(tk)/exception.o $(tansi)/string.o $(tk)/printk.o $(tk)/i8259.o
+$(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o $(tk)/start.o $(tk)/protect.o $(tk)/table.o $(tk)/exception.o $(tansi)/string.o $(tk)/printk.o $(tk)/i8259.o $(tk)/clock.o
 	@ld -m elf_i386 -N -e _start -Ttext 0x1000 -o $@ $^
 
 
