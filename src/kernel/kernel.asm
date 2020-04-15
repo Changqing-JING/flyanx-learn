@@ -69,7 +69,7 @@ csinit:
     xor eax, eax
     mov ax, SELECTOR_TSS
     ltr ax
-	int 32
+
     ;jmp to C main function
     jmp flyanx_main
 ;----------------exception handler-------------------------

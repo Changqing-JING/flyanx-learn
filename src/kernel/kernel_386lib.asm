@@ -177,7 +177,7 @@ enable_irq:
     push ecx
 
         cli                     ; 先屏蔽所有中断
-        mov ecx, [esp + 4]      ; ecx = int_request(中断向量)
+        mov ecx, [esp + 4*3]      ; ecx = int_request(中断向量)
         mov ah, ~1              ; ah = 11111110b
         rol ah, cl              ; ah = ~(1 << (int_request % 8))，算出在int_request位的复位位位图，例如2的置位位图是11111011b
         cmp cl, 7

@@ -12,9 +12,14 @@
 #define TIMER_COUNT  (TIMER_FREQ / HZ)  /* initial value for counter*/
 #define CLOCK_ACK_BIT	    0x80		/* PS/2 clock interrupt acknowledge bit */
 
+static unsigned int ticks=0;
 
 static int clock_handler(int irq){
-    printk(">");
+    ticks++;
+    if(ticks%HZ==0){
+         printk(">");
+    }
+   
     return ENABLE;
 }
 
