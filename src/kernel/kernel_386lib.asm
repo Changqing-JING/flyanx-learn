@@ -67,7 +67,7 @@ low_print:
 align 16
 in_byte:
     push edx
-        mov edx, [esp + 4]      ; 得到端口号
+        mov edx, [esp + 8]      ; 得到端口号
         xor eax, eax
         in al, dx              ; port -> al
     pop edx
@@ -80,8 +80,8 @@ in_byte:
 align 16
 out_byte:
     push edx
-        mov edx, [esp + 4]      ; 得到端口号
-        mov al, [esp + 4 * 2]   ; 要输出的字节
+        mov edx, [esp + 8]      ; 得到端口号
+        mov al, [esp + 4 * 3]   ; 要输出的字节
         out dx, al              ; al -> port
     pop edx
     nop                         ; 一点延迟
@@ -94,7 +94,7 @@ out_byte:
 align 16
 in_word:
     push edx
-        mov edx, [esp + 4]      ; 得到端口号
+        mov edx, [esp + 8]      ; 得到端口号
         xor eax, eax
         in ax, dx              ; port -> ax
     pop edx
@@ -107,8 +107,8 @@ in_word:
 align 16
 out_word:
     push edx
-        mov edx, [esp + 4]      ; 得到端口号
-        mov ax, [esp + 4 * 2]   ; 得到要输出的变量
+        mov edx, [esp + 8]      ; 得到端口号
+        mov ax, [esp + 4 * 3]   ; 得到要输出的变量
         out dx, ax              ; ax -> port
     pop edx
     nop                         ; 一点延迟

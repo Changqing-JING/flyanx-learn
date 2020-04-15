@@ -70,8 +70,6 @@ csinit:
     mov ax, SELECTOR_TSS
     ltr ax
 
-    int 48
-
     ;jmp to C main function
     jmp flyanx_main
 ;----------------exception handler-------------------------
@@ -167,6 +165,7 @@ exception:
     out INT_M_CTLMASK, al
 
 .0:
+    sti
     ret
 
 %endmacro
@@ -228,8 +227,9 @@ hwint07:		; Interrupt routine for irq 7 (printer)，打印机中断
     in al, INT_M_CTLMASK    ; 取出 主8259A 当前的屏蔽位图
     and al, ~(1 <<(%1 - 8))      ; 将该中断的屏蔽位复位，表示启用它
     out INT_M_CTLMASK, al   ; 输出新的屏蔽位图，启用该中断
-    ; 这里不需要使用 sti 指令重新启用中断响应，因为在输出新的屏蔽位图到 8259A 后，中断会重新开始响应
+
 .0:
+    sti
     ret
 %endmacro
 ;----------------------------------------------------------------------------
@@ -271,6 +271,6 @@ bits 32
 
 
 [section .bss]
-StackBase: resb 4*1024
+StackSpace: resb 4*1024
 StackTop:
 
