@@ -33,5 +33,9 @@ EXTERN BootParams_t* boot_params;    /* 引导参数 */
 /* 硬件中断请求处理例程表 */
 EXTERN irq_handler_t irq_handler_table[NR_IRQ_VECTORS];
 
+/* 多进程相关 */
+EXTERN struct process_s *curr_proc;  /* 当前正在运行的进程 */
+
+EXTERN u8_t kernel_reenter;
 
 #endif // FLYANX_GLOBAL_H

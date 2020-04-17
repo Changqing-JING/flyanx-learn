@@ -5,6 +5,8 @@ extern idt_ptr
 extern cstart
 extern exception_handler
 extern irq_handler_table
+extern curr_proc
+extern kernel_reenter
 global _start
 
 ; export all exception handler functions
@@ -24,6 +26,7 @@ global stack_exception
 global general_protection
 global page_fault
 global copr_error
+extern tss
 
 ; 所有中断处理入口，一共16个(两个8259A)
 global	hwint00
@@ -133,8 +136,10 @@ copr_error:
 	jmp	exception
 
 exception:
+	call save
 	call	exception_handler
 	add	esp, 4 * 2	    ; 让栈顶指向 EIP，堆栈中从顶向下依次是：EIP、CS、EFLAGS
+	ret
 .down:
 	hlt                 ; CPU停止运转，宕机
     jmp .down
@@ -145,6 +150,7 @@ exception:
 ; 为 主从两个8259A 各定义一个中断处理模板
 ;----------------------------------------------------------------------------
 %macro  hwint_master 1
+	call save
     in al, INT_M_CTLMASK ;load 8259 shield mask map
     or al, (1<<%1)
 	out INT_M_CTLMASK, al
@@ -204,6 +210,8 @@ hwint07:		; Interrupt routine for irq 7 (printer)，打印机中断
  	hwint_master	7
 ;----------------------------------------------------------------------------
 %macro  hwint_slave 1
+
+	call save ;save stack when switch process
     ; 1 在调用对于中断的处理例程前，先屏蔽当前中断，防止短时间内连续发生好几次同样的中断
     in al, INT_M_CTLMASK    ; 取出 主8259A 当前的屏蔽位图
     or al, (1 << (%1 - 8)) ; 将该中断的屏蔽位置位，表示屏蔽它
@@ -270,6 +278,70 @@ hwint15:		; Interrupt routine for irq 15
 [section .data]
 bits 32
     nop
+
+;save stack when switch process
+save:
+
+	;push to curr_proc
+	;general registers
+	;return address 
+	;auto save interrupt 
+	
+
+	pushad
+
+	push ds
+	push es
+	push fs
+	push gs
+
+	;recover kernel data segment
+
+	mov ax, ss
+	mov ds, ax
+	mov es, ax
+
+	mov esi, esp
+
+	;check if current context is already kernel
+	inc byte [kernel_reenter]
+	cmp byte [kernel_reenter], 0
+	jnz .reenter
+	mov esp, StackTop ;switch to kernel stack
+	push restart
+	jmp .return
+.reenter:
+	push restart_reenter
+	
+
+.return:
+	jmp [esi + RETADDR] ; return process return address
+
+restart:
+	mov esp, [curr_proc]; ;exit kernel esp->process stack
+
+	lldt [esp + P_LDT_SEL] ; each process has its ldt
+
+	;save ldt_sel to tss.sp0 as the stack top of next save
+	lea eax, [esp + P_STACKTOP]
+	mov dword[tss + TSS3_S_SP0], eax
+
+restart_reenter:
+	;kernel_reenter-1
+	dec byte[kernel_reenter]
+
+	pop gs
+	pop fs
+	pop es
+	pop ds
+	popad
+
+	add esp, 4;scap ret_addr
+
+	iretd; return interrupt
+
+
+
 
 
 [section .bss]

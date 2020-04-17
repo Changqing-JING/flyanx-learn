@@ -96,4 +96,9 @@
 #define NO_ENTRY                ((ino_t) 0)	/* 缺少目录项 */
 #define NO_DEV                  ((dev_t) 0)	/* 缺少设备号 */
 
+
+/* 系统任务数量 */
+#define NR_TASKS    (0 + NR_CONTROLLERS)
+#define NR_SERVERS  0
+
 #endif //_FLYANX_CONST_H

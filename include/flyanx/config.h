@@ -127,4 +127,8 @@ error "编译前请在<flyanx/config.h>配置文件中定义你要编译的机�
 error "MACHINE的值不正确(0)"
 #endif
 
+/* 进程表中的用户进程的槽数，这个配置决定了flyanx能同时运行多少个用户进程。 */
+#define NR_PROCS          32
+
+
 #endif //_FLYANX_CONFIG_H
