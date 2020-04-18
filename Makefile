@@ -11,6 +11,7 @@ includeASMLib = -i./src/lib/ansi/
 srcBoot = ./src/boot
 srcKernel = ./src/kernel
 srcAnsi = ./src/lib/ansi
+srcLib = ./src/lib
 FD = flyanx.img
 
 .PHONY=clean run runBochs
@@ -68,7 +69,16 @@ $(tk)/clock.o: $(srcKernel)/clock.c
 $(tk)/i8259.o: $(srcKernel)/i8259.c
 	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
 
-$(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o $(tk)/start.o $(tk)/protect.o $(tk)/table.o $(tk)/exception.o $(tansi)/string.o $(tk)/printk.o $(tk)/i8259.o $(tk)/clock.o
+$(tk)/misc.o: $(srcKernel)/misc.c
+	@gcc -m32 -fno-stack-protector -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
+
+$(tk)/sprintf.o: $(srcLib)/stdio/sprintf.c
+	@gcc -m32 -fno-stack-protector -I$(includePath) -c -o $@ $<
+
+$(tk)/vsprintf.o: $(srcLib)/stdio/vsprintf.c
+	@gcc -m32 -fno-stack-protector -I$(includePath) -c -o $@ $<
+
+$(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o $(tk)/start.o $(tk)/protect.o $(tk)/table.o $(tk)/exception.o $(tansi)/string.o $(tk)/misc.o $(tk)/i8259.o $(tk)/clock.o $(tk)/sprintf.o $(tk)/vsprintf.o
 	@ld -m elf_i386 -N -e _start -Ttext 0x1000 -o $@ $^
 
 

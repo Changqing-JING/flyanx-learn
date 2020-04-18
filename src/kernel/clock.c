@@ -1,5 +1,4 @@
 #include "kernel.h"
-#include "printk.h"
 /* 时钟, 8253 / 8254 PIT (可编程间隔定时器)参数 */
 #define TIMER0          0x40	/* 定时器通道0的I/O端口 */
 #define TIMER1          0x41	/* 定时器通道1的I/O端口 */
@@ -17,7 +16,7 @@ static unsigned int ticks=0;
 static int clock_handler(int irq){
     ticks++;
     if(ticks%HZ==0){
-         printk(">");
+         printf(">");
     }
    
     return ENABLE;

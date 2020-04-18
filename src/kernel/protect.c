@@ -2,7 +2,6 @@
 #include "protect.h"
 #include "prototype.h"
 #include "global.h"
-#include "printk.h"
 #include "process.h"
 /* 全局描述符表GDT */
 PUBLIC SegDescriptor_t gdt[GDT_SIZE];

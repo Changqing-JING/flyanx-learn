@@ -1,5 +1,4 @@
 #include "kernel.h"
-#include "printk.h"
 
 static int default_irq_handler(int irq){
     k_printf("intrrupt %d", irq);

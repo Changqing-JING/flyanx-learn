@@ -1,5 +1,4 @@
 #include "kernel.h"
-#include "printk.h"
 
 /* 异常信息表 */
 PRIVATE char* exception_table[] = {

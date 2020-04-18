@@ -1,7 +1,6 @@
 
 #include "kernel.h"
 #include "protect.h"
-#include "printk.h"
 
 void cstart(){
     display_position = (80*6 + 2 *0)*2;

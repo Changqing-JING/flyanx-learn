@@ -9,6 +9,7 @@ extern curr_proc
 extern kernel_reenter
 global _start
 global restart
+global down_run
 
 ; export all exception handler functions
 global divide_error
@@ -356,7 +357,9 @@ restart_reenter:
 
 	iretd; return interrupt
 
-
+down_run:
+    hlt
+    jmp down_run
 
 
 

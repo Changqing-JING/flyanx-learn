@@ -15,6 +15,7 @@
  * 作用是保证所有POSIX要求的符号和那些显式地允许但并不要求的符号将是可见的，
  * 同时隐藏掉任何POSIX非官方扩展的附加符号。
  */
+#include "const.h"
 #define _POSIX_SOURCE      1
 
 /* 宏_FLYANX将为FLYANX所定义的扩展而"重载_POSIX_SOURCE"的作用 */

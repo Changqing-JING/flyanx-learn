@@ -10,7 +10,7 @@
 
 #ifndef FLYANX_CONST_H
 #define FLYANX_CONST_H
-
+#define printf  k_printf
 /*
  * 当配置头文件config.h中CHIP是INTEL时生效
  * 这些值用于Intel的CPU芯片,但在别的硬件上编译时则可能不同。
@@ -114,8 +114,6 @@
 #define USER_QUEUE             2	/* 就绪的系统服务通过队列2调度 */
 #define NR_PROC_QUEUE          3	/* 调度队列的数量 */
 
-/* 在内核中，将printf的引用指向printk，注意：还没有实现printk，那么请别在内核中使用printf */
-#define printf  printk
 
 /* 将内核空间中的地址转换为物理地址。
  */
