@@ -12,7 +12,7 @@ void flyanx_main(){
 
     //init all task table element as empty
     register Process_t *proc;
-    register int logic_nr;
+    int logic_nr;
 
     for(proc = BEG_PROC_ADDR, logic_nr = -NR_TASKS; proc<END_PROC_ADDR; proc++, logic_nr++){
         if(logic_nr>0){//system sercive
@@ -66,12 +66,12 @@ void flyanx_main(){
         proc->regs.eflags = is_task_proc(proc) ? INIT_TASK_PSW : INIT_PSW;
         proc->flags = CLEAN_MAP;
 
-        curr_proc = proc_addr(-2);
-        restart();//start process
+       
         
 
     }
-
+    curr_proc = proc_addr(-2);
+    restart();//start process
 
     while(1){}
 }
