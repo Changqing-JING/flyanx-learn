@@ -103,7 +103,7 @@ _PROTOTYPE( void restart, (void) );
 _PROTOTYPE( void test_task_a, (void) );
 _PROTOTYPE( void test_task_b, (void) );
 _PROTOTYPE( int k_printf, (const char* fmt, ...) );
-_PROTOTYPE( int printfk, (const char* fmt, ...) );
+_PROTOTYPE( int printk, (const char* fmt, ...) );
 _PROTOTYPE( void down_run, (void) );
 _PROTOTYPE( void panic, (const char* msg, int error_no ) );
 #endif //FLYANX_PROTOTYPE_H
