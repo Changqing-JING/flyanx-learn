@@ -39,7 +39,7 @@ void exception_handler(int int_vector, int error_code){
 
         if(error_code != 0xffffffff){
 
-           k_printf("should some error code here %x\n", error_code);
+           printf("should some error code here %x\n", error_code);
         }
 
      }else{

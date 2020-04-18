@@ -2,6 +2,8 @@ ImgMountPoint =/media/floppyDisk
 IncludeFlags =-i./src/boot/include/
 tb = target/boot
 tk = target/kernel
+tl = target/lib
+tstdio = target/lib/stdio
 t = target
 tansi = target/lib/ansi
 includePath = ./include
@@ -25,7 +27,13 @@ $(tk):
 $(tansi):
 	@mkdir -p $@
 
-createDir: $(tb) $(tk) $(tansi)
+$(tl):
+	@mkdir -p $@
+
+$(tstdio):
+	@mkdir -p $@
+
+createDir: $(tb) $(tk) $(tansi) $(tl) $(tstdio)
 
 all: createDir $(tb)/boot.bin $(tb)/loader.bin $(tk)/kernel.bin
 
@@ -72,13 +80,13 @@ $(tk)/i8259.o: $(srcKernel)/i8259.c
 $(tk)/misc.o: $(srcKernel)/misc.c
 	@gcc -m32 -fno-stack-protector -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
 
-$(tk)/sprintf.o: $(srcLib)/stdio/sprintf.c
+$(tstdio)/sprintf.o: $(srcLib)/stdio/sprintf.c
 	@gcc -m32 -fno-stack-protector -I$(includePath) -c -o $@ $<
 
-$(tk)/vsprintf.o: $(srcLib)/stdio/vsprintf.c
+$(tstdio)/vsprintf.o: $(srcLib)/stdio/vsprintf.c
 	@gcc -m32 -fno-stack-protector -I$(includePath) -c -o $@ $<
 
-$(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o $(tk)/start.o $(tk)/protect.o $(tk)/table.o $(tk)/exception.o $(tansi)/string.o $(tk)/misc.o $(tk)/i8259.o $(tk)/clock.o $(tk)/sprintf.o $(tk)/vsprintf.o
+$(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o $(tk)/start.o $(tk)/protect.o $(tk)/table.o $(tk)/exception.o $(tansi)/string.o $(tk)/misc.o $(tk)/i8259.o $(tk)/clock.o $(tstdio)/sprintf.o $(tstdio)/vsprintf.o $(tk)/printk.o
 	@ld -m elf_i386 -N -e _start -Ttext 0x1000 -o $@ $^
 
 

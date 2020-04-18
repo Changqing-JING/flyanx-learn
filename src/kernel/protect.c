@@ -17,7 +17,7 @@ struct gate_desc_s {
 };
 
 void soft_interrupt_handler(){
-    k_printf("soft interrupt");
+    printf("soft interrupt");
 }
 
 
