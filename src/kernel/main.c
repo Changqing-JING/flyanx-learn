@@ -12,7 +12,7 @@ void flyanx_main(){
 
     //init all task table element as empty
     register Process_t *proc;
-    int logic_nr;
+    register int logic_nr;
 
     for(proc = BEG_PROC_ADDR, logic_nr = -NR_TASKS; proc<END_PROC_ADDR; proc++, logic_nr++){
         if(logic_nr>0){//system sercive

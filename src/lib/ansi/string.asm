@@ -49,6 +49,8 @@ memset:
 ; char* strcpy(char* p_dst, char* p_src);
 strcpy:
     push ebp
+    push edi
+    push esi
 	mov ebp, esp
 
     mov edi, [ebp + 8]			; edi -> 目的地地址
@@ -64,7 +66,8 @@ strcpy:
 	jnz .1						; 没遇到就进行循环，遇到说明移动完成
 
 	mov eax, [ebp + 8]			; 返回值
-	
+	pop esi
+    pop edi
 	pop ebp
 	ret
 ;================================================================================================
