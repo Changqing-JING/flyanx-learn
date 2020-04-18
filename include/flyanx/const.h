@@ -99,4 +99,7 @@
 #define NR_TASKS    (2 + NR_CONTROLLERS)
 #define NR_SERVERS  0
 
+#define KERNEL_TEXT_SEG_BASE    0
+#define KERNEL_DATA_SEG_BASE    0
+
 #endif //_FLYANX_CONST_H
