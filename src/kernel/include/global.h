@@ -38,4 +38,8 @@ EXTERN struct process_s *curr_proc;  /* 当前正在运行的进程 */
 
 EXTERN u8_t kernel_reenter;
 
+extern SysProc_t sys_proc_table[];
+
+extern char *sys_proc_stack[];  
+
 #endif // FLYANX_GLOBAL_H

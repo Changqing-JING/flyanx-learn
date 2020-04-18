@@ -45,24 +45,34 @@ typedef unsigned reg_t;
  * 减少进程上下文切换的时间，进程指针必须指向这里。
  */
 typedef struct stackframe_s {
-    reg_t	gs;		/* ┓						│			*/
-    reg_t	fs;		/* ┃						│			*/
-    reg_t	es;		/* ┃						│			*/
-    reg_t	ds;		/* ┃						│			*/
-    reg_t	edi;		/* ┃						│			*/
-    reg_t	esi;		/* ┣ pushed by save()				│			*/
-    reg_t	ebp;		/* ┃						│			*/
-    reg_t	kernel_esp;	/* <- 'popad' will ignore it			│			*/
-    reg_t	ebx;		/* ┃						↑栈从高地址往低地址增长*/
-    reg_t	edx;		/* ┃						│			*/
-    reg_t	ecx;		/* ┃						│			*/
-    reg_t	eax;		/* ┛						│			*/
-    reg_t	retaddr;	/* return address for assembly code save()	│			*/
-    reg_t	pc;		/*  ┓						│			*/
-    reg_t	cs;		/*  ┃						│			*/
-    reg_t	psw;		/*  ┣ these are pushed by CPU during interrupt	│			*/
-    reg_t	esp;		/*  ┃						│			*/
-    reg_t	ss;		/*  ┛						┷High			*/
+    /* 低地址 */
+    /* =========== 所有的特殊段寄存器，我们手动压入 =========== */
+    reg_t	gs;
+    reg_t	fs;
+    reg_t	es;
+    reg_t	ds;
+    /* ============== 所有的普通寄存器，我们通过 pushad 手动压入 ============== */
+    reg_t	edi;
+    reg_t	esi;
+    reg_t	ebp;
+    reg_t	kernel_esp;	/* pushad 压入的 esp，这个时候已经自动从低特权级到了 0 特权级，
+                         * 所以这个其实是从tss.esp0！而 popad 指令也会忽略这个，不会
+                         * 恢复它。
+                         */
+    reg_t	ebx;
+    reg_t	edx;
+    reg_t	ecx;
+    reg_t	eax;
+    /* ======= call save()自动保存的返回地址 ======= */
+    reg_t	ret_addr;
+    /* ============ 中断自动压入的内容 ============= */
+    reg_t	eip;        /* 中断门和调用门有一点点不同，那就是中断门还会压入一个eflags */
+    reg_t	cs;
+    reg_t	eflags;     /* 中断门自动压入 */
+    reg_t	esp;
+    reg_t   ss;
+    /* =========================================== */
+    /* 高地址 */
 } Stackframe_t;
 
 /* 受保护模式的段描述符
@@ -84,6 +94,12 @@ typedef _PROTOTYPE( void (*int_handler_t), (void) );
 typedef _PROTOTYPE( int (*irq_handler_t), (int irq) );
 /* 系统调用函数原型 */
 typedef _PROTOTYPE( void (*flyanx_syscall_t),  (void) );
+
+typedef struct sys_proc {
+    task_t *initial_eip;        /* 系统进程的处理句柄，即 eip */
+    int     stack_size;         /* 系统进程的栈大小 */
+    char    name[16];           /* 系统进程名称 */
+} SysProc_t;
 
 #endif /* (CHIP == INTEL) */
 

@@ -8,6 +8,7 @@ extern irq_handler_table
 extern curr_proc
 extern kernel_reenter
 global _start
+global restart
 
 ; export all exception handler functions
 global divide_error
@@ -77,66 +78,81 @@ csinit:
     jmp flyanx_main
 ;----------------exception handler-------------------------
 divide_error:
+	call save
 	push	0xffffffff	; 没有错误代码，用0xffffffff表示
 	push	0		    ; 中断向量号	= 0
 	jmp	exception
 single_step_exception:
+	call save
 	push	0xffffffff	; 没有错误代码，用0xffffffff表示
 	push	1		    ; 中断向量号	= 1
 	jmp	exception
 nmi:
+	call save
 	push	0xffffffff	; 没有错误代码，用0xffffffff表示
 	push	2		    ; 中断向量号	= 2
 	jmp	exception
 breakpoint_exception:
+	call save
 	push	0xffffffff	; 没有错误代码，用0xffffffff表示
 	push	3		    ; 中断向量号	= 3
 	jmp	exception
 overflow:
+	call save
 	push	0xffffffff	; 没有错误代码，用0xffffffff表示
 	push	4		    ; 中断向量号	= 4
 	jmp	exception
 bounds_check:
+	call save
 	push	0xffffffff	; 没有错误代码，用0xffffffff表示
 	push	5		    ; 中断向量号	= 5
 	jmp	exception
 inval_opcode:
+	call save
 	push	0xffffffff	; 没有错误代码，用0xffffffff表示
 	push	6		    ; 中断向量号	= 6
 	jmp	exception
 copr_not_available:
+	call save
 	push	0xffffffff	; 没有错误代码，用0xffffffff表示
 	push	7		    ; 中断向量号	= 7
 	jmp	exception
 double_fault:
+	call save
 	push	8		    ; 中断向量号	= 8
 	jmp	exception
 copr_seg_overrun:
+	call save
 	push	0xffffffff	; 没有错误代码，用0xffffffff表示
 	push	9		    ; 中断向量号	= 9
 	jmp	exception
 inval_tss:
+	call save
 	push	10		    ; 中断向量号	= 10
 	jmp	exception
 segment_not_present:
+	call save
 	push	11		    ; 中断向量号	= 11
 	jmp	exception
 stack_exception:
+	call save
 	push	12		    ; 中断向量号	= 12
 	jmp	exception
 general_protection:
+	call save
 	push	13		    ; 中断向量号	= 13
 	jmp	exception
 page_fault:
+	call save
 	push	14		    ; 中断向量号	= 14
 	jmp	exception
 copr_error:
+	call save
 	push	0xffffffff	; 没有错误代码，用0xffffffff表示
 	push	16		    ; 中断向量号	= 16
 	jmp	exception
 
 exception:
-	call save
 	call	exception_handler
 	add	esp, 4 * 2	    ; 让栈顶指向 EIP，堆栈中从顶向下依次是：EIP、CS、EFLAGS
 	ret

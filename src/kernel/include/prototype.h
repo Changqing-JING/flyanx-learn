@@ -98,5 +98,10 @@ _PROTOTYPE( void enable_irq, (int int_request) );
 void interrupt_init();
 void put_irq_handler(int irq, irq_handler_t handler);
 void clock_task();
+_PROTOTYPE( void restart, (void) );
+
+_PROTOTYPE( void test_task_a, (void) );
+_PROTOTYPE( void test_task_b, (void) );
+
 
 #endif //FLYANX_PROTOTYPE_H
