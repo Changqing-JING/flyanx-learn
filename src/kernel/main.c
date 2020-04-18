@@ -17,10 +17,11 @@ void flyanx_main(){
     for(proc = BEG_PROC_ADDR, logic_nr = -NR_TASKS; proc<END_PROC_ADDR; proc++, logic_nr++){
         if(logic_nr>0){//system sercive
             strcpy(proc->name, "unused");
-            proc->logic_nr = logic_nr;
-            p_proc_addr[logic_nr_2_index(logic_nr)] = proc;
+            
 
         }
+        proc->logic_nr = logic_nr;
+        p_proc_addr[logic_nr_2_index(logic_nr)] = proc;
     } 
 
     //init stack for each process
