@@ -10,7 +10,7 @@
 
 #ifndef FLYANX_CONST_H
 #define FLYANX_CONST_H
-#define printf  k_printf
+#define printf  printk
 /*
  * 当配置头文件config.h中CHIP是INTEL时生效
  * 这些值用于Intel的CPU芯片,但在别的硬件上编译时则可能不同。
