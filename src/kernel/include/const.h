@@ -10,7 +10,7 @@
 
 #ifndef FLYANX_CONST_H
 #define FLYANX_CONST_H
-#define printf  print_k
+#define printf  printk
 /*
  * 当配置头文件config.h中CHIP是INTEL时生效
  * 这些值用于Intel的CPU芯片,但在别的硬件上编译时则可能不同。
@@ -100,7 +100,7 @@
 #define TIMER_MODE      0x43	/* 用于定时器模式控制的I/O端口 */
 
 /* 固定系统调用向量。 */
-#define INT_VECTOR_LEVEL0           43	    /* 用于系统任务提权到0的调用向量 */
+#define INT_VECTOR_LEVEL0           0x66	    /* 用于系统任务提权到0的调用向量 */
 #define INT_VECTOR_SYS_CALL         47	    /* flyanx 386系统调用向量 */
 
 #endif /* (CHIP == INTEL) */
