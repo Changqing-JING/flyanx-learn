@@ -6,8 +6,6 @@ void cstart(){
     display_position = (80*6 + 2 *0)*2;
 
     low_print("cstart");
-
-    data_base = seg2phys(SELECTOR_KERNEL_DS);
     
 
     //init protect mode
