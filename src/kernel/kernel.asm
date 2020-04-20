@@ -10,6 +10,8 @@ extern kernel_reenter
 global _start
 global restart
 global down_run
+global halt
+global level0_sys_call
 
 ; export all exception handler functions
 global divide_error
@@ -29,6 +31,7 @@ global general_protection
 global page_fault
 global copr_error
 extern tss
+extern level0_func
 
 ; 所有中断处理入口，一共16个(两个8259A)
 global	hwint00
@@ -361,7 +364,17 @@ down_run:
     hlt
     jmp down_run
 
+halt:
+	sti
+	hlt
+	cli
+	ret
 
+;Task PRIVILEGE to kernel
+level0_sys_call:
+    call save
+	jmp [level0_func]
+	ret
 
 [section .bss]
 StackSpace: resb 4*1024

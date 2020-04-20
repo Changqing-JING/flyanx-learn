@@ -96,7 +96,7 @@
 
 
 /* 系统任务数量 */
-#define NR_TASKS    (2 + NR_CONTROLLERS)
+#define NR_TASKS    (1 + NR_CONTROLLERS)
 #define NR_SERVERS  0
 
 #define KERNEL_TEXT_SEG_BASE    0

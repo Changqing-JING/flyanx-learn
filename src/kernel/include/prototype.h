@@ -99,11 +99,12 @@ void interrupt_init();
 void put_irq_handler(int irq, irq_handler_t handler);
 void clock_task();
 _PROTOTYPE( void restart, (void) );
-
-_PROTOTYPE( void test_task_a, (void) );
-_PROTOTYPE( void test_task_b, (void) );
+_PROTOTYPE( void halt, (void) );
 _PROTOTYPE( int k_printf, (const char* fmt, ...) );
 _PROTOTYPE( int printk, (const char* fmt, ...) );
 _PROTOTYPE( void down_run, (void) );
 _PROTOTYPE( void panic, (const char* msg, int error_no ) );
+_PROTOTYPE( void idle_task, (void) );
+_PROTOTYPE( void level0_sys_call, (void) );
+_PROTOTYPE( void level0, (flyanx_syscall_t level0_func) );
 #endif //FLYANX_PROTOTYPE_H

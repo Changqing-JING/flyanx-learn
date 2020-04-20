@@ -29,7 +29,9 @@
 /* 这是一个普通堆栈大小，1KB */
 #define NORMAL_STACK (256 * sizeof(char*))
 
-#define TOTAL_SYS_PROC_STACK    ( SMALL_STACK + SMALL_STACK )
+#define IDLE_TASK_STACK SMALL_STACK
+
+#define TOTAL_SYS_PROC_STACK    ( IDLE_TASK_STACK )
 
 /* 所有系统进程堆栈的堆栈空间。 （声明为（char *）使其对齐。） */
 PUBLIC char *sys_proc_stack[TOTAL_SYS_PROC_STACK / sizeof(char *)];
@@ -37,9 +39,8 @@ PUBLIC char *sys_proc_stack[TOTAL_SYS_PROC_STACK / sizeof(char *)];
 /* === 系统进程表，包含系统任务以及系统服务 === */
 PUBLIC SysProc_t sys_proc_table[] = {
         /* ************************* 系统任务 ************************* */
-       // { idle_task, IDLE_TASK_STACK, "IDLE" }
-        {test_task_a, SMALL_STACK, "TEAT_A"},
-        {test_task_b, SMALL_STACK, "TEAT_B"}
+       { idle_task, IDLE_TASK_STACK, "IDLE" }
+       
         /* ************************* 系统服务 ************************* */
 };
 

@@ -70,41 +70,21 @@ void flyanx_main(){
         
 
     }
-    curr_proc = proc_addr(-2);
+    curr_proc = proc_addr(-1);
     restart();//start process
 
     while(1){}
 }
 
-/*=========================================================================*
- *				test_task_a				   *
- *	            测试系统任务 A
- *=========================================================================*/
-PUBLIC void test_task_a(void) {
-    int i, j, k;
-    k = 0;
-    while (TRUE) {
-        for(i = 0; i < 100; i++)
-            for(j = 0; j < 1000000; j++) {}
-        printf("#{A}-> %d)", k++);
+void idle_task(){
+    printf("idle");
+    while(1){
+        level0(halt);
     }
 }
 
-/*=========================================================================*
- *				test_task_a				   *
- *	            测试系统任务 B
- *=========================================================================*/
-PUBLIC void test_task_b(void) {
-    int i, j, k;
-    k = 0;
-    while (TRUE) {
-        for(i = 0; i < 100; i++)
-            for(j = 0; j < 100000; j++) {}
-        printf("#{B}-> %d)", k++);
-    }
-}
 
-PUBLIC void panic(
+void panic(
         _CONST char* msg,        /* 错误消息 */
         int error_no            /* 错误代码 */
 ){

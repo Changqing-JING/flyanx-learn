@@ -16,10 +16,6 @@ struct gate_desc_s {
     u8_t privilege;         /* 门权限 */
 };
 
-void soft_interrupt_handler(){
-    printf("soft interrupt");
-}
-
 
 struct gate_desc_s int_gate_table[] = {
         /* ************* 异常 *************** */
@@ -56,7 +52,7 @@ struct gate_desc_s int_gate_table[] = {
         { INT_VECTOR_IRQ8 + 5, hwint13, KERNEL_PRIVILEGE },
         { INT_VECTOR_IRQ8 + 6, hwint14, KERNEL_PRIVILEGE },
         { INT_VECTOR_IRQ8 + 7, hwint15, KERNEL_PRIVILEGE },
-         { 48, soft_interrupt_handler, KERNEL_PRIVILEGE },
+         { INT_VECTOR_LEVEL0, level0_sys_call, TASK_PRIVILEGE },
         /* ************* 软件中断 *************** */
 };
 

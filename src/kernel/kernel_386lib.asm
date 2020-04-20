@@ -9,7 +9,8 @@ global interrupt_lock
 global interrupt_unlock
 global disable_irq 
 global enable_irq  
-
+extern level0_func
+global level0
 %include "asm_const.inc"
 
 low_print:
@@ -195,3 +196,10 @@ enable_ok:
       pop ecx
       popf
       ret
+
+align 16
+level0:
+    mov eax, [esp+4]; eax printer to PRIVILEGE function
+    mov [level0_func], eax
+    int 0x66
+    ret

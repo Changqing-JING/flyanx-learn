@@ -42,4 +42,6 @@ extern SysProc_t sys_proc_table[];
 
 extern char *sys_proc_stack[];  
 
+EXTERN flyanx_syscall_t level0_func;
+
 #endif // FLYANX_GLOBAL_H
