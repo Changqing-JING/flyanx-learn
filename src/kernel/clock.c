@@ -16,14 +16,7 @@ static unsigned int ticks=0;
 
 static int clock_handler(int irq){
     ticks++;
-    if(ticks%HZ==0){
-         printf(">");
-         curr_proc++;
-         if(curr_proc>proc_addr(LOW_USER)){
-             curr_proc = proc_addr(-NR_TASKS);
-         }
-
-    }
+    
    
     return ENABLE;
 }
