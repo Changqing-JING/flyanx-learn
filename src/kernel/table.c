@@ -31,6 +31,9 @@
 
 #define IDLE_TASK_STACK SMALL_STACK
 
+#define HARDWARE_STACK  0
+
+
 #define TOTAL_SYS_PROC_STACK    ( IDLE_TASK_STACK )
 
 /* 所有系统进程堆栈的堆栈空间。 （声明为（char *）使其对齐。） */
@@ -38,10 +41,10 @@ PUBLIC char *sys_proc_stack[TOTAL_SYS_PROC_STACK / sizeof(char *)];
 
 /* === 系统进程表，包含系统任务以及系统服务 === */
 PUBLIC SysProc_t sys_proc_table[] = {
-        /* ************************* 系统任务 ************************* */
-       { idle_task, IDLE_TASK_STACK, "IDLE" }
-       
-        /* ************************* 系统服务 ************************* */
+       /* 待机任务 */
+        { idle_task, IDLE_TASK_STACK, "IDLE" },
+        /* 虚拟硬件任务，只是占个位置 - 用作判断硬件中断 */
+        { 0, HARDWARE_STACK, "HARDWARE" },
 };
 
 

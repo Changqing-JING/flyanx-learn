@@ -66,11 +66,15 @@ void flyanx_main(){
         proc->regs.eflags = is_task_proc(proc) ? INIT_TASK_PSW : INIT_PSW;
         proc->flags = CLEAN_MAP;
 
-       
+        if(!is_idle_hardware(logic_nr)){
+            ready(proc);
+        }
         
 
     }
-    curr_proc = proc_addr(-1);
+
+    lock_hunter();
+
     restart();//start process
 
     while(1){}

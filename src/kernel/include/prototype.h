@@ -19,7 +19,7 @@
 
 /* 结构体声明 */
 
-
+struct process_s;
 
 /*================================================================================================*/
 /* kernel.asm */
@@ -107,4 +107,17 @@ _PROTOTYPE( void panic, (const char* msg, int error_no ) );
 _PROTOTYPE( void idle_task, (void) );
 _PROTOTYPE( void level0_sys_call, (void) );
 _PROTOTYPE( void level0, (flyanx_syscall_t level0_func) );
+
+/* process.c */
+/*================================================================================================*/
+void lock_schedule(void);
+void lock_unready(struct process_s* proc);
+void lock_ready(struct process_s* proc);
+void lock_hunter(void);
+void schedule_stop();
+void ready( struct process_s* proc);
+void unready( struct process_s* proc);
+
+
+
 #endif //FLYANX_PROTOTYPE_H

@@ -12,6 +12,7 @@
 #include "flyanx/config.h"
 #include "type.h"
 #include "flyanx/type.h"
+#include "flyanx/common.h"
 #include "const.h"
 
 #ifndef _FLYANX_PROCESS_H

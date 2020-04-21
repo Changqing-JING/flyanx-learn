@@ -11,6 +11,7 @@
 #ifndef _FLYANX_COMMON_H
 #define _FLYANX_COMMON_H
 
-
+#define IDLE_TASK -2
+#define HARDWARE -1
 
 #endif //_FLYANX_COMMON_H
