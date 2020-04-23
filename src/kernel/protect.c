@@ -77,7 +77,7 @@ PRIVATE void init_gate(
     p_gate->offset_high = (base_addr >> 16) & 0xFFFF;
 #endif
 }
-
+#define phys_copy( _src,  _dest,  _size) memcpy((void*)_dest, (void*)_src, _size)
 
 void protect_init(){
     

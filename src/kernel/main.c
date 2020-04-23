@@ -86,8 +86,10 @@ void idle_task(){
 
     Message_t msg;
 
-    in_outbox(&msg, &msg);
-
+        in_outbox(&msg, &msg);
+    send(HARDWARE, &msg);
+    receive(HARDWARE, &msg);
+    send_rec(HARDWARE, NULL);
     while(1){
         level0(halt);
     }
