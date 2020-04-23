@@ -58,5 +58,5 @@ P_LDT_SEL       equ P_STACKTOP      ; LDT选择子
 P_LDT           equ P_LDT_SEL + 4   ; LDT
 ; TSS::SP0 的偏移
 TSS3_S_SP0      equ 4
-
+LEVEL0_VECTOR   equ 0x66            
 MESSAGE_SIZE    equ	9

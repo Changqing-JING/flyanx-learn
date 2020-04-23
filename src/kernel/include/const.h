@@ -101,7 +101,7 @@
 
 /* 固定系统调用向量。 */
 #define INT_VECTOR_LEVEL0           0x66	    /* 用于系统任务提权到0的调用向量 */
-#define INT_VECTOR_SYS_CALL         47	    /* flyanx 386系统调用向量 */
+#define INT_VECTOR_SYS_CALL         0x94	    /* flyanx 386系统调用向量 */
 
 #endif /* (CHIP == INTEL) */
 
