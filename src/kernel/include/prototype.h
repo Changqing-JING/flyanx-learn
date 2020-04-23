@@ -118,6 +118,11 @@ void schedule_stop();
 void ready( struct process_s* proc);
 void unready( struct process_s* proc);
 
+_PROTOTYPE( void msg_copy, (phys_bytes msg_phys, phys_bytes dest_phys) );
 
+_PROTOTYPE( void flyanx_386_sys_call, (void) );
+
+int flyanx_send(struct process_s* caller, int dest, Message_t* msg_phys);
+int flyanx_receive(struct process_s* caller, int dest, Message_t* msg_phys);
 
 #endif //FLYANX_PROTOTYPE_H

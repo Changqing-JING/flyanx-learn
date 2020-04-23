@@ -11,6 +11,7 @@ global disable_irq
 global enable_irq  
 extern level0_func
 global level0
+global msg_copy
 %include "asm_const.inc"
 
 low_print:
@@ -202,4 +203,24 @@ level0:
     mov eax, [esp+4]; eax printer to PRIVILEGE function
     mov [level0_func], eax
     int 0x66
+    ret
+
+
+align 16
+msg_copy:
+    push esi
+    push edi
+    push ecx
+
+      mov esi, [esp + 4 * 4]  ; msg_phys
+      mov edi, [esp + 4 * 5]  ; dest_phys
+
+      ; 开始拷贝消息
+      cld
+      mov ecx, MESSAGE_SIZE   ; 消息大小(dword)
+      rep movsd
+
+    pop ecx
+    pop edi
+    pop esi
     ret

@@ -12,6 +12,8 @@ global restart
 global down_run
 global halt
 global level0_sys_call
+extern sys_call
+global flyanx_386_sys_call
 
 ; export all exception handler functions
 global divide_error
@@ -336,6 +338,21 @@ save:
 
 .return:
 	jmp [esi + RETADDR] ; return process return address
+
+flyanx_386_sys_call:
+	call save
+
+	push ebx
+	push eax
+	push ecx
+
+	call sys_call
+
+	add esp, 4*3
+
+	ret
+
+
 
 restart:
 	mov esp, [curr_proc]; ;exit kernel esp->process stack

@@ -2,6 +2,7 @@
 #include "kernel.h"
 #include "process.h"
 #include "protect.h"
+#include "flyanx/syslib.h"
 int display_position = (80 * 6 + 0) * 2; 
 
 
@@ -82,6 +83,11 @@ void flyanx_main(){
 
 void idle_task(){
     printf("idle");
+
+    Message_t msg;
+
+    in_outbox(&msg, &msg);
+
     while(1){
         level0(halt);
     }

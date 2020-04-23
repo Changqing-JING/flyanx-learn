@@ -53,6 +53,7 @@ struct gate_desc_s int_gate_table[] = {
         { INT_VECTOR_IRQ8 + 6, hwint14, KERNEL_PRIVILEGE },
         { INT_VECTOR_IRQ8 + 7, hwint15, KERNEL_PRIVILEGE },
          { INT_VECTOR_LEVEL0, level0_sys_call, TASK_PRIVILEGE },
+         { INT_VECTOR_SYS_CALL, flyanx_386_sys_call, USER_PRIVILEGE },
         /* ************* 软件中断 *************** */
 };
 
