@@ -72,7 +72,7 @@ int sys_call(int op, int src_dest_msgp, Message_t *msg_ptr){
 
 int flyanx_send(Process_t* caller, int dest, Message_t* msg_phys){
 
-    register Process_t* target, next;
+    register Process_t* target, *next;
 
     if(is_user_proc(caller)&& !is_sys_server(dest)){
         return ERROR_BAD_DEST;
@@ -84,8 +84,9 @@ int flyanx_send(Process_t* caller, int dest, Message_t* msg_phys){
         return ERROR_BAD_DEST;
     }
 
+    //check for dead lock
     if(target->flags&SENDING){
-        Process_t* next = proc_addr(target->send_to);
+        next = proc_addr(target->send_to);
 
         while (TRUE)
         {
@@ -99,15 +100,16 @@ int flyanx_send(Process_t* caller, int dest, Message_t* msg_phys){
                 break;
             }
             
-        }
+        } 
+    }
 
-        if(target->flags == RECEIVING && 
+    if(target->flags == RECEIVING && 
         (target->get_form == caller->logic_nr || target->get_form == ANY)){
             msg_copy((phys_bytes)msg_phys, (phys_bytes)target->transfer);
 
-            target->flags &= -RECEIVING;
+            target->flags &= ~RECEIVING;
 
-            if(caller->flags == CLEAN_MAP){
+            if(target->flags == CLEAN_MAP){
                 ready(target);
             }
         }else{
@@ -134,8 +136,6 @@ int flyanx_send(Process_t* caller, int dest, Message_t* msg_phys){
 
             caller->next_waiter = NIL_PROC;
         }
-        
-    }
 
     return OK;
 }
@@ -157,7 +157,7 @@ int flyanx_receive(Process_t* caller, int src, Message_t* msg_phys){
                     prev->next_waiter = sender->next_waiter;
                 }
 
-                sender->flags &= -SENDING;
+                sender->flags &= ~SENDING;
                 if(sender->flags == CLEAN_MAP){
                     ready(sender);
                 }

@@ -319,9 +319,9 @@ save:
 
 	;recover kernel data segment
 
-	mov ax, ss
-	mov ds, ax
-	mov es, ax
+	mov dx, ss
+	mov ds, dx
+	mov es, dx
 
 	mov esi, esp
 

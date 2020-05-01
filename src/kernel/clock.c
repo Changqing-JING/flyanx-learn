@@ -41,7 +41,7 @@ void clock_task(){
     
     in_outbox(&msg, &msg);
 
-    printf("CLOCK is working");
+    printf("CLOCK is working\n");
 
     while (TRUE)
     {
