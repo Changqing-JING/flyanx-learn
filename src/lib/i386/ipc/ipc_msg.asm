@@ -47,8 +47,10 @@ com:
     mov ebx, [esp + 16]
     
 
-    pop ecx
-    pop ebx
+    
 
     int SYS_VEC
+
+    pop ecx
+    pop ebx
     ret
