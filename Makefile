@@ -88,7 +88,7 @@ $(tk)/i8259.o: $(srcKernel)/i8259.c
 	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
 
 $(tk)/ipc_msg.o: $(srcKernel)/ipc_msg.c
-	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
+	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -fno-stack-protector -c -o $@ $<
 
 $(tk)/misc.o: $(srcKernel)/misc.c
 	@gcc -m32 -fno-stack-protector -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<

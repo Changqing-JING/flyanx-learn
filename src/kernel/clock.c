@@ -14,6 +14,8 @@
 
 static unsigned int ticks=0;
 
+PRIVATE Message_t msg;
+
 static int clock_handler(int irq){
     ticks++;
     
@@ -36,6 +38,20 @@ static void clock_init(){
 
 void clock_task(){
     clock_init();
-    interrupt_unlock();
+    
+    in_outbox(&msg, &msg);
+
+    printf("CLOCK is working");
+
+    while (TRUE)
+    {
+        receive(ANY, NIL_MESSAGE);
+
+        printf("CLOCK->get_message from %d\n", msg.source);
+        msg.type = 666;
+        send(msg.source, NULL);
+    }
+    
+
 }
 

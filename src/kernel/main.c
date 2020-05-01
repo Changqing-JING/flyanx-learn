@@ -9,7 +9,7 @@ int display_position = (80 * 6 + 0) * 2;
 
 void flyanx_main(){
     
-    clock_task();
+    
 
     //init all task table element as empty
     register Process_t *proc;
@@ -82,14 +82,16 @@ void flyanx_main(){
 }
 
 void idle_task(){
-    printf("idle");
+    printf("idle\n");
 
     Message_t msg;
 
-        in_outbox(&msg, &msg);
-    send(HARDWARE, &msg);
-    receive(HARDWARE, &msg);
-    send_rec(HARDWARE, NULL);
+    in_outbox(&msg, &msg);
+    
+    send_rec(CLOCK_TASK, NULL);
+
+    printf("send_rec, get type %d\n", msg.type);
+
     while(1){
         level0(halt);
     }

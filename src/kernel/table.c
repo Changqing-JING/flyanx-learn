@@ -24,6 +24,9 @@
 #include "process.h"
 
 /* === 堆栈相关 === */
+
+#define CLOCK_TASK_STACK    SMALL_STACK      
+
 /* 一个 512 字节 的小栈 */
 #define SMALL_STACK (128 * sizeof(char*))
 /* 这是一个普通堆栈大小，1KB */
@@ -34,7 +37,7 @@
 #define HARDWARE_STACK  0
 
 
-#define TOTAL_SYS_PROC_STACK    ( IDLE_TASK_STACK )
+#define TOTAL_SYS_PROC_STACK    (CLOCK_TASK_STACK + IDLE_TASK_STACK )
 
 /* 所有系统进程堆栈的堆栈空间。 （声明为（char *）使其对齐。） */
 PUBLIC char *sys_proc_stack[TOTAL_SYS_PROC_STACK / sizeof(char *)];
@@ -42,6 +45,7 @@ PUBLIC char *sys_proc_stack[TOTAL_SYS_PROC_STACK / sizeof(char *)];
 /* === 系统进程表，包含系统任务以及系统服务 === */
 PUBLIC SysProc_t sys_proc_table[] = {
        /* 待机任务 */
+       { clock_task, CLOCK_TASK_STACK, "CLOCK" },
         { idle_task, IDLE_TASK_STACK, "IDLE" },
         /* 虚拟硬件任务，只是占个位置 - 用作判断硬件中断 */
         { 0, HARDWARE_STACK, "HARDWARE" },
