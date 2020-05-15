@@ -1,4 +1,4 @@
-ImgMountPoint =/media/floppyDisk
+ImgMountPoint =/media/floppy
 IncludeFlags =-i./src/boot/include/
 tb = target/boot
 tk = target/kernel
