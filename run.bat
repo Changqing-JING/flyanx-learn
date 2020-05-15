@@ -1,0 +1,1 @@
+qemu-system-i386 -m 256 -boot a -fda target/flyanx.imgcd
