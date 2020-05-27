@@ -125,4 +125,6 @@ _PROTOTYPE( void flyanx_386_sys_call, (void) );
 int flyanx_send(struct process_s* caller, int dest, Message_t* msg_phys);
 int flyanx_receive(struct process_s* caller, int dest, Message_t* msg_phys);
 
+void proc_dump();
+
 #endif //FLYANX_PROTOTYPE_H

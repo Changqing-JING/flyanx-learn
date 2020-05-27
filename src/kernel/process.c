@@ -24,11 +24,11 @@ static void hunter(){
 
     prey = ready_head[USER_QUEUE];
     if(prey!=NIL_PROC){
-        curr_proc = prey;
+        bill_proc = curr_proc = prey;
         return;
     }
 
-    prey = proc_addr(IDLE_TASK);
+    bill_proc = prey = proc_addr(IDLE_TASK);
 
     curr_proc = prey;
 }

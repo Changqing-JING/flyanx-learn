@@ -1,5 +1,10 @@
 #include "kernel.h"
 #include "process.h"
+
+#define SCHEDULE_MILLISECOND    130         /* 用户进程调度的频率（毫秒），根据喜好设置就行 */
+#define SCHEDULE_TICKS          (SCHEDULE_MILLISECOND / ONE_TICK_MILLISECOND)  /* 用户进程调度的频率（滴答） */
+
+
 /* 时钟, 8253 / 8254 PIT (可编程间隔定时器)参数 */
 #define TIMER0          0x40	/* 定时器通道0的I/O端口 */
 #define TIMER1          0x41	/* 定时器通道1的I/O端口 */
@@ -16,7 +21,37 @@ static unsigned int ticks=0;
 
 PRIVATE Message_t msg;
 
+PRIVATE time_t realtime;        /* 时钟运行的时间(s)，也是开机后时钟运行的时间 */
+
+/* 由中断处理程序更改的变量 */
+PRIVATE clock_t schedule_ticks = SCHEDULE_TICKS;    /* 用户进程调度时间，当为0时候，进行程序调度 */
+PRIVATE Process_t *last_proc;                       /* 最后使用时钟任务的用户进程 */
+
 static int clock_handler(int irq){
+
+    register Process_t *target;
+
+    //get current process which using timmer
+    if(kernel_reenter){ //if reenter a interrupt, current in in kernel. Set current proc as virtual hardware
+        target = proc_addr(HARDWARE);
+    }else{
+        target = curr_proc;
+    }
+
+    //start billing
+    target->user_time++;
+    if(target != curr_proc && target != proc_addr(HARDWARE)){
+        //current proc is not billing proc. It should be a user process which call system kernel
+        //add system time of this process
+        bill_proc->sys_time++;
+    }
+
+    schedule_ticks--;
+    if(schedule_ticks==0){
+        schedule_ticks = SCHEDULE_TICKS;
+        last_proc = bill_proc;
+    }
+
     ticks++;
     
    
@@ -46,9 +81,24 @@ void clock_task(){
     while (TRUE)
     {
         receive(ANY, NIL_MESSAGE);
+        //calibrate time before service.
 
-        printf("CLOCK->get_message from %d\n", msg.source);
-        msg.type = 666;
+        interrupt_lock();
+        realtime = ticks/HZ;
+        interrupt_unlock();
+
+        switch (msg.type)
+        {
+
+        default:{
+            panic("Clock got a bad message\n", msg.type);
+            break;
+        }
+
+           
+        }
+
+        msg.type = OK;
         send(msg.source, NULL);
     }
     

@@ -93,13 +93,16 @@ $(tk)/ipc_msg.o: $(srcKernel)/ipc_msg.c
 $(tk)/misc.o: $(srcKernel)/misc.c
 	@gcc -m32 -fno-stack-protector -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
 
+$(tk)/dump.o: $(srcKernel)/dump.c
+	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
+
 $(tstdio)/sprintf.o: $(srcLib)/stdio/sprintf.c
 	@gcc -m32 -fno-stack-protector -I$(includePath) -c -o $@ $<
 
 $(tstdio)/vsprintf.o: $(srcLib)/stdio/vsprintf.c
 	@gcc -m32 -fno-stack-protector -I$(includePath) -c -o $@ $<
 
-$(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o $(tk)/start.o $(tk)/protect.o $(tk)/table.o $(tk)/exception.o $(tansi)/string.o $(tk)/misc.o $(tk)/i8259.o $(tk)/clock.o $(tstdio)/sprintf.o $(tstdio)/vsprintf.o $(tk)/printk.o $(tk)/process.o $(tk)/ipc_msg.o $(i386Objs)/ipc_msg.o
+$(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o $(tk)/start.o $(tk)/protect.o $(tk)/table.o $(tk)/exception.o $(tansi)/string.o $(tk)/misc.o $(tk)/i8259.o $(tk)/clock.o $(tstdio)/sprintf.o $(tstdio)/vsprintf.o $(tk)/printk.o $(tk)/process.o $(tk)/ipc_msg.o $(i386Objs)/ipc_msg.o $(tk)/dump.o
 	@ld -m elf_i386 -N -e _start -Ttext 0x1000 -o $@ $^
 
 
