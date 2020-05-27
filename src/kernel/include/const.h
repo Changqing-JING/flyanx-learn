@@ -127,4 +127,13 @@
 #define sen_rec(n)          send_rec(n, NIL_MESSAGE)
 #define io_box(vir)         in_outbox(vir, vir);
 
+/* 秒 转化为 毫秒 */
+#define sec2ms(s) (s * 1000)
+/* 滴答 转换为 毫秒 */
+#define tick2ms(t)  (t * ONE_TICK_MILLISECOND)
+/* 滴答 转化为 秒 */
+#define tick2sec(t)   ((time_t)tick2ms(t) / 1000)
+/* 字节 转换为 KB */
+#define bytes2round_k(n)    ((unsigned) (((n + 512) >> 10)))
+
 #endif //FLYANX_CONST_H

@@ -38,6 +38,8 @@ static int clock_handler(int irq){
         target = curr_proc;
     }
 
+    ticks++;
+
     //start billing
     target->user_time++;
     if(target != curr_proc && target != proc_addr(HARDWARE)){
@@ -52,7 +54,7 @@ static int clock_handler(int irq){
         last_proc = bill_proc;
     }
 
-    ticks++;
+    
     
    
     return ENABLE;
