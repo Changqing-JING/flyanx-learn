@@ -76,21 +76,15 @@ void flyanx_main(){
 
     lock_hunter();
 
+    proc_dump();
+    map_dump();
+
     restart();//start process
 
     while(1){}
 }
 
 void idle_task(){
-    printf("idle\n");
-
-    Message_t msg;
-
-    in_outbox(&msg, &msg);
-    
-    send_rec(CLOCK_TASK, NULL);
-
-    printf("send_rec, get type %d\n", msg.type);
 
     while(1){
         level0(halt);

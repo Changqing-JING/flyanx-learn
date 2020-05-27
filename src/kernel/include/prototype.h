@@ -126,5 +126,6 @@ int flyanx_send(struct process_s* caller, int dest, Message_t* msg_phys);
 int flyanx_receive(struct process_s* caller, int dest, Message_t* msg_phys);
 
 void proc_dump();
+void map_dump();
 
 #endif //FLYANX_PROTOTYPE_H
