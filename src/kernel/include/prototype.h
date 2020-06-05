@@ -18,7 +18,7 @@
 #define FLYANX_PROTOTYPE_H
 
 /* 结构体声明 */
-
+#include "sys/times.h"
 struct process_s;
 
 /*================================================================================================*/
@@ -93,7 +93,7 @@ _PROTOTYPE(  void interrupt_lock, (void) );
 _PROTOTYPE(  void interrupt_unlock, (void) );
 _PROTOTYPE( int disable_irq, (int int_request) );
 _PROTOTYPE( void enable_irq, (int int_request) );
-
+_PROTOTYPE( u8_t cmos_read, (u8_t addr) );
 
 void interrupt_init();
 void put_irq_handler(int irq, irq_handler_t handler);
@@ -127,5 +127,7 @@ int flyanx_receive(struct process_s* caller, int dest, Message_t* msg_phys);
 
 void proc_dump();
 void map_dump();
+
+void get_rtc_time(RTCTime_t *p_time);
 
 #endif //FLYANX_PROTOTYPE_H

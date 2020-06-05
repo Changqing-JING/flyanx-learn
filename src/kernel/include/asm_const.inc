@@ -60,3 +60,7 @@ P_LDT           equ P_LDT_SEL + 4   ; LDT
 TSS3_S_SP0      equ 4
 LEVEL0_VECTOR   equ 0x66            
 MESSAGE_SIZE    equ	9
+
+; CMOS
+CLK_ELE             equ 0x70
+CLK_IO		        equ 0x71

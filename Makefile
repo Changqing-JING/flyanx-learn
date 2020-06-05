@@ -82,7 +82,7 @@ $(tk)/printk.o: $(srcKernel)/printk.c
 	@gcc -m32 -I$(srcKernel)/include -fno-stack-protector -c -o $@ $<
 
 $(tk)/clock.o: $(srcKernel)/clock.c
-	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<
+	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -fno-stack-protector -c -o $@ $<
 
 $(tk)/i8259.o: $(srcKernel)/i8259.c
 	@gcc -m32 -I$(includePath) -I$(kernelIncludePath) -c -o $@ $<

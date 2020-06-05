@@ -12,6 +12,7 @@ global enable_irq
 extern level0_func
 global level0
 global msg_copy
+global cmos_read
 %include "asm_const.inc"
 
 low_print:
@@ -223,4 +224,15 @@ msg_copy:
     pop ecx
     pop edi
     pop esi
+    ret
+
+cmos_read:
+    push edx
+        mov al, [esp + 4 * 2]   ; 要输出的字节
+        out CLK_ELE, al         ; al -> CMOS ELE port
+        nop                     ; 一点延迟
+        xor eax, eax
+        in al, CLK_IO           ; port -> al
+        nop                     ; 一点延迟
+    pop edx
     ret
