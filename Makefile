@@ -17,8 +17,8 @@ srcAnsi = ./src/lib/ansi
 srcLib = ./src/lib
 FD = flyanx.img
 
-AsmFlag = -f elf
-CFlag = -c -m32
+AsmFlag = -f elf -g
+CFlag = -c -m32 -g
 
 .PHONY=clean run runBochs
 
@@ -130,6 +130,9 @@ clean:
 
 run: $(t)/$(FD)
 	@qemu-system-i386 -m 256 -boot a -fda $<
+
+debug: $(t)/$(FD)
+	@qemu-system-i386 -m 256 -boot a -s -S -fda $<
 
 runBochs:
 	@bochs
