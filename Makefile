@@ -17,7 +17,7 @@ srcAnsi = ./src/lib/ansi
 srcLib = ./src/lib
 FD = flyanx.img
 
-AsmFlag = -f elf -g
+AsmFlag = -f elf -g -F dwarf
 CFlag = -c -m32 -g
 
 .PHONY=clean run runBochs
