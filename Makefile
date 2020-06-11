@@ -17,8 +17,16 @@ srcAnsi = ./src/lib/ansi
 srcLib = ./src/lib
 FD = flyanx.img
 
-AsmFlag = -f elf -g -F dwarf
-CFlag = -c -m32 -g
+AsmFlagBase = -f elf
+CFlagBase = -c -m32
+
+ifeq ($(debugFlag),debug)
+	AsmFlag = $(AsmFlagBase) -g -F dwarf
+	CFlag = $(CFlagBase)  -g
+else
+	AsmFlag = $(AsmFlagBase)
+	CFlag = $(CFlagBase)
+endif
 
 .PHONY=clean run runBochs
 
@@ -131,7 +139,7 @@ clean:
 run: $(t)/$(FD)
 	@qemu-system-i386 -m 256 -boot a -fda $<
 
-debug: $(t)/$(FD)
+runDebug: $(t)/$(FD)
 	@qemu-system-i386 -m 256 -boot a -s -S -fda $<
 
 runBochs:
@@ -142,4 +150,8 @@ deasm: $(tb)/boot.bin
 
 remake:
 	@make clean
-	@make image
+	@make image debugFlag=release
+
+debug:
+	@make clean
+	@make image debugFlag=debug
