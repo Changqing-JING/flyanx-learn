@@ -52,7 +52,7 @@ csinit:
     ltr ax
 
     ;jmp to C main function
-    jmp 0x40:0
+    jmp 0x40:0 ;fixme test cpu error, need remove to run following code
     jmp flyanx_main
 ;----------------exception handler-------------------------
 divide_error:
