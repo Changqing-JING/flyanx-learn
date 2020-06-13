@@ -7,6 +7,7 @@ extern exception_handler
 extern irq_handler_table
 extern curr_proc
 extern kernel_reenter
+extern unhold
 global _start
 global restart
 global down_run
@@ -355,6 +356,8 @@ flyanx_386_sys_call:
 
 
 restart:
+	call unhold
+over_unhold:
 	mov esp, [curr_proc]; ;exit kernel esp->process stack
 
 	lldt [esp + P_LDT_SEL] ; each process has its ldt

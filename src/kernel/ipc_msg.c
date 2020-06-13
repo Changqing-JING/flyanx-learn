@@ -103,7 +103,7 @@ int flyanx_send(Process_t* caller, int dest, Message_t* msg_phys){
         } 
     }
 
-    if(target->flags == RECEIVING && 
+    if((target->flags & (SENDING | RECEIVING)) == RECEIVING && 
         (target->get_form == caller->logic_nr || target->get_form == ANY)){
             msg_copy((phys_bytes)msg_phys, (phys_bytes)target->transfer);
 

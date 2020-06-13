@@ -28,6 +28,8 @@ PRIVATE time_t realtime;        /* 时钟运行的时间(s)，也是开机后时
 PRIVATE clock_t schedule_ticks = SCHEDULE_TICKS;    /* 用户进程调度时间，当为0时候，进行程序调度 */
 PRIVATE Process_t *last_proc;                       /* 最后使用时钟任务的用户进程 */
 time_t boot_time;
+clock_t next_alarm = ULONG_MAX;
+clock_t delay_alarm = ULONG_MAX;
 
 
 #define MINUTES 60	                /* 1 分钟的秒数。 */
@@ -49,6 +51,23 @@ PRIVATE int month_map[12] = {
         DAYS * (31 + 29 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31),
         DAYS * (31 + 29 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30)
 };
+
+/*Only avalible after timmer driver start*/
+
+void milli_delay(time_t delay_ms){
+    /*busy wait*/
+    delay_alarm = ticks + delay_ms / ONE_TICK_MILLISECOND;
+    while (delay_alarm != ULONG_MAX)
+    {
+
+    }
+    
+}
+
+void do_clock_int(){
+    printf("I am clock int\n");
+    next_alarm = ULONG_MAX;
+}
 
 void do_get_uptime(){
     msg.CLOCK_TIME = ticks;
@@ -81,6 +100,15 @@ static int clock_handler(int irq){
         //current proc is not billing proc. It should be a user process which call system kernel
         //add system time of this process
         bill_proc->sys_time++;
+    }
+
+    if(next_alarm<=ticks){
+        interrupt(CLOCK_TASK);
+        return ENABLE;
+    }
+
+    if(delay_alarm<=ticks){
+        delay_alarm = ULONG_MAX;
     }
 
     schedule_ticks--;
@@ -147,6 +175,10 @@ static void clock_init(){
 
 void clock_task(){
     clock_init();
+
+    printf("aaa\n");
+    milli_delay(3000);
+    printf("bbb\n");
     
     in_outbox(&msg, &msg);
 
@@ -156,13 +188,17 @@ void clock_task(){
     {
         receive(ANY, NIL_MESSAGE);
         //calibrate time before service.
-
+        do_clock_int();
         interrupt_lock();
         realtime = ticks/HZ;
         interrupt_unlock();
 
         switch (msg.type)
         {
+            case(HARD_INT):{
+
+                break;
+            }
             case(GET_UPTIME):{
                 do_get_uptime();
                 break;

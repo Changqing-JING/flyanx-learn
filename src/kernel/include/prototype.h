@@ -130,4 +130,9 @@ void map_dump();
 
 void get_rtc_time(RTCTime_t *p_time);
 
+void unhold();
+void interrupt(int task);
+
+void milli_delay(time_t delay_ms);
+
 #endif //FLYANX_PROTOTYPE_H

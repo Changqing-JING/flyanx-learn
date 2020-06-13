@@ -4,9 +4,78 @@
 
 bool_t switching = 0;
 
+Process_t* held_head;
+Process_t* held_tail;
+
 /*
 pich one process for next dispatch
 */
+
+void interrupt(int task){
+    register Process_t* target = proc_addr(task);
+    /*if reenter interrupt or switching process, not send message currently*/
+    if(kernel_reenter || switching ){
+        interrupt_lock();
+        if(!target->int_held){
+            target->int_held = 1;
+            if(held_head == NIL_PROC){
+                held_head = target;
+            }else{
+                held_tail->next_held = target;
+            }
+            held_tail = target;
+            target->next_held = NIL_PROC;
+        }
+        interrupt_unlock();
+        return;
+    }
+
+    //can handle interrupt
+    
+    if((target->flags & (SENDING | RECEIVING)) != RECEIVING
+    || !is_any_hardware(target->get_form)){
+        target->int_blocked = 1;
+        return;
+    }
+
+    //target can receive message and not waiting for hardware
+    target->transfer->source = HARDWARE;
+    target->transfer->type = HARD_INT;
+    target->flags &= ~RECEIVING;
+    target->int_blocked = 0;
+
+    if(ready_head[TASK_QUEUE]!= NIL_PROC){
+            ready_tail[TASK_QUEUE]->next_ready = target;
+
+    }else{
+            ready_head[TASK_QUEUE] = target;
+            curr_proc = target;
+    }
+    ready_tail[TASK_QUEUE] = target;
+    target->next_ready = NIL_PROC;
+}
+
+
+/*process all hold process*/
+void unhold(){
+    register Process_t* target;
+    if(switching || held_head == NIL_PROC){
+        return;
+    }
+
+    
+    do{
+        target = held_head;
+        held_head = held_head->next_held;
+        interrupt_lock();
+        interrupt(target->logic_nr);
+        interrupt_unlock();
+
+    }while(held_head!=NIL_PROC);
+
+    held_tail = NIL_PROC;
+}
+
 
 static void hunter(){
     register Process_t *prey;

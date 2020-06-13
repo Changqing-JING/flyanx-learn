@@ -74,7 +74,7 @@ typedef struct process_s {
     struct process_s* next_waiter;  /* 指向下一个要发送消息给我的人，为了实现等待队列 */
 
     char name[32];                  /* 这个没啥好说的，就是进程的名称，记得起个好名字哦 */
-} Process_t;
+} Process_t, *PProcess_t;
 
 /* 系统堆栈的保护字 */
 #define SYS_TASK_STACK_GUARD	((reg_t) (sizeof(reg_t) == 2 ? 0xBEEF : 0xDEADBEEF))    /* 任务的 */

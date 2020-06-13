@@ -14,6 +14,7 @@
 #define CLOCK_TASK -3
 #define IDLE_TASK -2
 #define HARDWARE -1
+#define HARD_INT -1
 
 #define CLOCK_TASK          -3  
 #define     GET_UPTIME      1   
