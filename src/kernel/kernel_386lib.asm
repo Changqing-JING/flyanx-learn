@@ -19,10 +19,9 @@ low_print:
     push esi
     push edi
     push ebx
-    push ecx
     push edx
 
-    mov esi, [esp+4*6]
+    mov esi, [esp+4*5]
 
     mov edi, [display_position]
     mov ah, 0xf
@@ -55,7 +54,6 @@ low_print:
 
 
     pop edx
-    pop ecx
     pop ebx
     pop edi
     pop esi
