@@ -135,4 +135,6 @@ void interrupt(int task);
 
 void milli_delay(time_t delay_ms);
 
+void keyboard_init();
+
 #endif //FLYANX_PROTOTYPE_H

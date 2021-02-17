@@ -176,13 +176,7 @@ static void clock_init(){
 void clock_task(){
     clock_init();
 
-    printf("aaa\n");
-    milli_delay(3000);
-    printf("bbb\n");
-    
-    in_outbox(&msg, &msg);
-
-    printf("CLOCK is working\n");
+    io_box(&msg);
 
     while (TRUE)
     {

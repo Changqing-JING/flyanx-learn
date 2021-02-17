@@ -76,8 +76,10 @@ void flyanx_main(){
 
     lock_hunter();
 
-    proc_dump();
-    map_dump();
+    //proc_dump();
+    //map_dump();
+
+    keyboard_init();
 
     restart();//start process
 
