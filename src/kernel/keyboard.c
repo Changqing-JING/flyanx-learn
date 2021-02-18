@@ -93,7 +93,7 @@ static int keyboard_handler(int irq){
                 *input_free = scan_code;
                 input_free++;
                 input_count++;
-        }else{
+                if(input_count == KEYBOARD_IN_BYTES){
                 int i;
                 u8_t prb[KEYBOARD_IN_BYTES + 1];
                 for(i = 0; i < KEYBOARD_IN_BYTES; ++i) {
@@ -106,14 +106,52 @@ static int keyboard_handler(int irq){
                 printf("input buffer full. string is '%s'\n", prb);
                 input_free = input_buff;
                 input_count = 0;
+                }
         }
 
         return ENABLE;
 }
 
+static int keyboard_wait(){
+        int retries = 10;
+
+        u8_t status;
+        while(retries-->0 && (status = in_byte(KEYBOARD_STATUS))&(1|2)!=0){
+                if((status & KEYBOARD_OUT_FULL) != 0){
+                        in_byte(KEYBOARD_DATA);
+                }
+        }
+        return retries;
+}
+
+static int keyboard_ack(){
+        int retries = 10;
+
+        while(retries-->0 && in_byte(KEYBOARD_DATA)!=KEYBOARD_ACK){
+
+        }
+
+        return retries;
+}
+
+static void setting_led(){
+        keyboard_wait();
+
+        out_byte(KEYBOARD_DATA, LED_CODE);
+        
+        keyboard_ack();
+
+        keyboard_wait();
+
+        out_byte(KEYBOARD_DATA, 0x01);
+
+        keyboard_ack();
+}
+
 void keyboard_init(){
-        printf("key board init ");
+
         input_count = 0;
+        setting_led();
         scan_key();
         put_irq_handler(KEYBOARD_IRQ, keyboard_handler);
 
