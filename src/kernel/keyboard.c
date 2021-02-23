@@ -25,7 +25,7 @@
 #define MAX_KEYBOARD_ACK_RETRIES    0x1000  /* 等待键盘响应的最大等待时间 */
 #define MAX_KEYBOARD_BUSY_RETRIES   0x1000  /* 键盘忙时循环的最大时间 */
 #define KEY_BIT             0x80    /* 将字符打包传输到键盘的位 */
-
+#define KEY                 0x7f 
 /* 它们用于滚屏操作 */
 #define SCROLL_UP       0	            /* 前滚，用于滚动屏幕 */
 #define SCROLL_DOWN     1	            /* 后滚 */
@@ -76,42 +76,6 @@ u8_t* input_todo = input_buff;
 #define map_key0(scan_code)\
         (u16_t)keymap[(scan_code * MAP_COLS)]
 
-static u8_t scan_key(){
-    u8_t scan_code = in_byte(KEYBOARD_DATA);
-
-    //clean keyboard controller buffer
-    int val = in_byte(PORT_B);
-    out_byte(PORT_B, val|KEY_BIT);
-    return scan_code;
-}
-
-static int keyboard_handler(int irq){
-
-        u8_t scan_code = scan_key();
-
-        if(input_count<KEYBOARD_IN_BYTES){
-                *input_free = scan_code;
-                input_free++;
-                input_count++;
-                if(input_count == KEYBOARD_IN_BYTES){
-                int i;
-                u8_t prb[KEYBOARD_IN_BYTES + 1];
-                for(i = 0; i < KEYBOARD_IN_BYTES; ++i) {
-                        prb[i] = map_key0(input_buff[i]);
-                        if(prb[i] == 0) {
-                                prb[i] = ' ';
-                        }
-                }
-                prb[KEYBOARD_IN_BYTES] = '\0';
-                printf("input buffer full. string is '%s'\n", prb);
-                input_free = input_buff;
-                input_count = 0;
-                }
-        }
-
-        return ENABLE;
-}
-
 static int keyboard_wait(){
         int retries = 10;
 
@@ -143,10 +107,153 @@ static void setting_led(){
 
         keyboard_wait();
 
-        out_byte(KEYBOARD_DATA, 0x01);
+        out_byte(KEYBOARD_DATA, locks[0]);
 
         keyboard_ack();
 }
+
+static u8_t scan_key(){
+    u8_t scan_code = in_byte(KEYBOARD_DATA);
+
+    //clean keyboard controller buffer
+    int val = in_byte(PORT_B);
+    out_byte(PORT_B, val|KEY_BIT);
+    return scan_code;
+}
+
+
+static u32_t map_key(u8_t scan_code){
+
+        u16_t* keys_row = &keymap[scan_code*MAP_COLS];
+
+        u8_t lock = locks[0];
+        bool_t caps = shift;
+
+        if((lock & CAPS_LOCK)!=0 && (keys_row[0] & HASCAPS) ){
+                caps = !caps;
+        }
+
+        int col = 0;
+
+        if(alt){
+                col = 2; //alt + *
+                if(ctrl || alt_right){
+                        col = 3;
+                }
+                if(caps){
+                        col = 4;
+                }
+
+        }else{
+                if(caps){
+                        col = 1;
+                }
+                if(ctrl){
+                        col = 5;
+                }
+                
+        }
+
+        u16_t current_key = keys_row[col];
+        return (current_key & ~HASCAPS);
+
+}
+
+static u32_t make_break(u8_t scan_code){
+        bool_t is_make = (scan_code & KEY_BIT) ==0;
+        scan_code &= KEY;
+        u32_t ch = map_key(scan_code);
+
+        bool_t escape = esc;
+        esc = FALSE;
+
+        switch (ch)
+        {
+        case CTRL:{
+               if(escape){
+                       ctrl_right = is_make;
+               }else{
+                       ctrl_left = is_make;
+               }
+               ctrl = ctrl_left | ctrl_right;
+                break;
+        }
+         case SHIFT:{
+               if(shift == RSHIFT_SCAN){
+                  shift_right = is_make;   
+               }else{
+                   shift_left = is_make;
+               }
+               shift = shift_left | shift_right;
+                break;
+        }
+         case ALT:{
+                 if(escape){
+                         alt_right = is_make;
+                 }else{
+                         alt_left = is_make;
+                 }
+
+                 alt = alt_left | alt_right;
+
+                
+                break;
+        }
+         case NLOCK:{
+                if(is_make){
+                        locks[0] ^= NUM_LOCK;
+                        setting_led();
+                }
+                break;
+        }
+         case SLOCK:{
+                 if(is_make){
+                        locks[0] ^= SCROLL_LOCK;
+                        setting_led();
+                }
+                
+                break;
+        }
+         case CALOCK:{
+                locks[0] ^= CAPS_LOCK;
+                break;
+        }
+
+         case EXTKEY:{
+                esc = TRUE;
+                break;
+         }
+                
+        
+                default:{
+                if(is_make){
+                        return ch;
+                }
+                 break;
+                }
+               
+        }
+
+        return -1;
+}
+
+static int keyboard_handler(int irq){
+
+        u8_t scan_code = scan_key();
+
+        u32_t ch = make_break(scan_code);
+
+        if(ch!=-1){
+                printf("%c ", ch);
+        }
+        
+
+        return ENABLE;
+}
+
+
+
+
 
 void keyboard_init(){
 
