@@ -20,6 +20,8 @@ FD = flyanx.img
 AsmFlagBase = -f elf
 CFlagBase = -c -m32 -std=c99
 
+run_sudo = sudo -S  < /home/jcq/password.txt
+
 ifeq ($(debugFlag),debug)
 	AsmFlag = $(AsmFlagBase) -g -F dwarf
 	CFlag = $(CFlagBase)  -g
@@ -123,18 +125,18 @@ $(tk)/kernel.bin: $(tk)/kernel.o $(tk)/kernel_386lib.o $(tk)/main.o $(tk)/start.
 image: all $(FD)
 	@dd if=$(tb)/boot.bin of=$(t)/$(FD) bs=512 count=1 conv=notrunc
 	@make mountImg
-	@sudo cp -f -i $(tb)/loader.bin $(ImgMountPoint)/loader.bin
-	@sudo cp -f -i $(tk)/kernel.bin $(ImgMountPoint)/kernel.bin
+	@${run_sudo} cp -f -i $(tb)/loader.bin $(ImgMountPoint)/loader.bin
+	@${run_sudo} cp -f -i $(tk)/kernel.bin $(ImgMountPoint)/kernel.bin
 	@make unmountImg
 
 $(FD):
 	@dd if=/dev/zero of=$(t)/$(FD) bs=512 count=2880
 
 mountImg: $(t)/$(FD)
-	@sudo mount -t msdos -o loop $< $(ImgMountPoint)/
+	@${run_sudo} mount -t msdos -o loop $< $(ImgMountPoint)/
 
 unmountImg:
-	@sudo umount $(ImgMountPoint)/
+	@${run_sudo} umount $(ImgMountPoint)/ 
 
 clean:
 	@rm -rf $(t)/*
