@@ -19,6 +19,7 @@ FD = flyanx.img
 
 AsmFlagBase = -f elf
 CFlagBase = -c -m32 -std=c99
+qemuArg = -cpu host -enable-kvm  -m 256
 
 run_sudo = sudo -S  < /home/jcq/password.txt
 
@@ -142,10 +143,10 @@ clean:
 	@rm -rf $(t)/*
 
 run: $(t)/$(FD)
-	@qemu-system-i386 -m 256 -boot a -fda $<
+	@qemu-system-i386 ${qemuArg} -boot a -fda $<
 
 runDebug: $(t)/$(FD)
-	@qemu-system-i386 -m 256 -boot a -s -S -fda $<
+	@qemu-system-i386 ${qemuArg} -boot a -s -S -fda $<
 
 runBochs:
 	@bochs
