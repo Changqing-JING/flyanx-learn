@@ -19,7 +19,7 @@ FD = flyanx.img
 
 AsmFlagBase = -f elf
 CFlagBase = -c -m32 -std=c99
-qemuArg = -cpu host -enable-kvm  -m 256
+qemuArgBase =  -m 256
 
 run_sudo = sudo -S  < /home/jcq/password.txt
 
@@ -56,7 +56,7 @@ createDir: $(tb) $(tk) $(tansi) $(tl) $(tstdio) $(i386Objs)
 all: createDir $(tb)/boot.bin $(tb)/loader.bin $(tk)/kernel.bin
 
 $(tb)/boot.bin: $(srcBoot)/boot.asm
-	@nasm $(IncludeFlags) -o $@ $<
+	@nasm $(IncludeFlags) -g  -o $@ $<
 
 $(tb)/loader.bin: $(srcBoot)/loader.asm
 	@nasm $(IncludeFlags) $(includeASMLib) -o $@ $<
@@ -143,7 +143,7 @@ clean:
 	@rm -rf $(t)/*
 
 run: $(t)/$(FD)
-	@qemu-system-i386 ${qemuArg} -boot a -fda $<
+	@qemu-system-i386 -cpu host -enable-kvm ${qemuArg} -boot a -fda $<
 
 runDebug: $(t)/$(FD)
 	@qemu-system-i386 ${qemuArg} -boot a -s -S -fda $<
